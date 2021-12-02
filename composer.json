@@ -1,0 +1,14 @@
+{
+    "name": "not-a-robot-agency/wpforms-stripe",
+    "type": "wordpress-plugin",
+    "description": "",
+    "require": {
+        "php": ">=5.6"
+    },
+    "authors": [
+        {
+            "name": "Chris Jezowicz",
+            "email": "me@chrisjezowicz.com"
+        }
+    ]
+}
