@@ -156,29 +156,31 @@ class Process {
 
 		$customer     = \wpforms_stripe()->api->get_customer();
 		$subscription = \wpforms_stripe()->api->get_subscription();
+		$payment_data = [
+			'payment_type'         => 'stripe',
+			'payment_total'        => $this->amount,
+			'payment_currency'     => wpforms_get_currency(),
+			'payment_transaction'  => sanitize_text_field( $payment->id ),
+			'payment_mode'         => 'live' === Helpers::get_stripe_mode() ? 'production' : 'test',
+			'payment_subscription' => ! empty( $subscription->id ) ? sanitize_text_field( $subscription->id ) : '',
+			'payment_customer'     => ! empty( $customer->id ) ? sanitize_text_field( $customer->id ) : '',
+			'payment_period'       => ! empty( $subscription->id ) ? sanitize_text_field( $this->settings['recurring']['period'] ) : '',
+		];
 
 		\wpforms()->entry->update(
 			$entry_id,
 			array(
 				'status' => 'completed',
 				'type'   => 'payment',
-				'meta'   => \wp_json_encode(
-					array(
-						'payment_type'         => 'stripe',
-						'payment_total'        => $this->amount,
-						'payment_currency'     => wpforms_get_currency(),
-						'payment_transaction'  => \sanitize_text_field( $payment->id ),
-						'payment_mode'         => 'live' === Helpers::get_stripe_mode() ? 'production' : 'test',
-						'payment_subscription' => ! empty( $subscription->id ) ? \sanitize_text_field( $subscription->id ) : '',
-						'payment_customer'     => ! empty( $customer->id ) ? \sanitize_text_field( $customer->id ) : '',
-						'payment_period'       => ! empty( $subscription->id ) ? \sanitize_text_field( $this->settings['recurring']['period'] ) : '',
-					)
-				),
+				'meta'   => wp_json_encode( $payment_data ),
 			),
 			'',
 			'',
 			array( 'cap' => false )
 		);
+
+		// Insert payment data into entry_meta table.
+		wpforms()->get( 'entry' )->insert_payment_meta( $entry_id, $payment_data );
 
 		// Update the Stripe charge meta data to include the Entry ID.
 		$payment->metadata['entry_id']  = $entry_id;
@@ -223,6 +225,10 @@ class Process {
 		}
 
 		if ( ! $this->is_conditional_logic_ok( $this->settings ) ) {
+			return false;
+		}
+
+		if ( empty( wpforms_stripe()->api->get_payment() ) ) {
 			return false;
 		}
 

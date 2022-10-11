@@ -5,7 +5,7 @@ namespace WPFormsStripe\Fields;
 use WPFormsStripe\Helpers;
 
 /**
- * Name text field.
+ * Stripe credit card field.
  *
  * @since 2.3.0
  */
@@ -19,21 +19,22 @@ class StripeCreditCard extends \WPForms_Field {
 	public function init() {
 
 		// Define field type information.
-		$this->name  = \esc_html__( 'Stripe Credit Card', 'wpforms' );
+		$this->name  = \esc_html__( 'Stripe Credit Card', 'wpforms-stripe' );
 		$this->type  = 'stripe-credit-card';
 		$this->icon  = 'fa-credit-card';
 		$this->order = 90;
 		$this->group = 'payment';
 
 		// Define additional field properties.
-		\add_filter( 'wpforms_field_properties_stripe-credit-card', array( $this, 'field_properties' ), 5, 3 );
+		add_filter( 'wpforms_field_properties_stripe-credit-card', [ $this, 'field_properties' ], 5, 3 );
 
 		// Set field to required by default.
-		\add_filter( 'wpforms_field_new_required', array( $this, 'default_required' ), 10, 2 );
+		add_filter( 'wpforms_field_new_required', [ $this, 'default_required' ], 10, 2 );
 
-		\add_action( 'wpforms_builder_enqueues', array( $this, 'builder_enqueues' ) );
-		\add_filter( 'wpforms_builder_strings', array( $this, 'builder_js_strings' ) );
-		\add_filter( 'wpforms_builder_field_button_attributes', array( $this, 'field_button_attributes' ), 10, 3 );
+		add_action( 'wpforms_builder_enqueues', [ $this, 'builder_enqueues' ] );
+		add_filter( 'wpforms_builder_strings', [ $this, 'builder_js_strings' ] );
+		add_filter( 'wpforms_builder_field_button_attributes', [ $this, 'field_button_attributes' ], 10, 3 );
+		add_filter( 'wpforms_pro_fields_entry_preview_is_field_support_preview_stripe-credit-card_field', [ $this, 'entry_preview_availability' ] );
 	}
 
 	/**
@@ -73,7 +74,7 @@ class StripeCreditCard extends \WPForms_Field {
 					'required' => ! empty( $field['required'] ) ? 'required' : '',
 					'sublabel' => array(
 						'hidden'   => ! empty( $field['sublabel_hide'] ),
-						'value'    => \esc_html__( 'Card', 'wpforms' ),
+						'value'    => \esc_html__( 'Card', 'wpforms-stripe' ),
 						'position' => 'after',
 					),
 				),
@@ -94,7 +95,7 @@ class StripeCreditCard extends \WPForms_Field {
 					'required' => ! empty( $field['required'] ) ? 'required' : '',
 					'sublabel' => array(
 						'hidden'   => ! empty( $field['sublabel_hide'] ),
-						'value'    => \esc_html__( 'Name on Card', 'wpforms' ),
+						'value'    => \esc_html__( 'Name on Card', 'wpforms-stripe' ),
 						'position' => 'after',
 					),
 				),
@@ -185,7 +186,7 @@ class StripeCreditCard extends \WPForms_Field {
 	public function builder_js_strings( $strings ) {
 
 		$strings['stripe_ajax_required'] = \wp_kses(
-			__( '<p>AJAX form submissions are required when using the Stripe Credit Card field.</p><p>To proceed, please go to <strong>Settings » General</strong> and check <strong>Enable AJAX form submission</strong>.</p>', 'wpforms-stripe' ),
+			__( '<p>AJAX form submissions are required when using the Stripe Credit Card field.</p><p>To proceed, please go to <strong>Settings » General » Advanced</strong> and check <strong>Enable AJAX form submission</strong>.</p>', 'wpforms-stripe' ),
 			array(
 				'p'      => array(),
 				'strong' => array(),
@@ -295,7 +296,7 @@ class StripeCreditCard extends \WPForms_Field {
 				$field,
 				array(
 					'slug'  => 'cardname_placeholder',
-					'value' => \esc_html__( 'Name on Card Placeholder Text', 'wpforms' ),
+					'value' => \esc_html__( 'Name on Card Placeholder Text', 'wpforms-stripe' ),
 				)
 			);
 			echo '<div class="placeholder">';
@@ -303,19 +304,20 @@ class StripeCreditCard extends \WPForms_Field {
 			echo '</div>';
 		echo '</div>';
 
-		// Hide Label.
-		$this->field_option( 'label_hide', $field );
-
-		// Hide sub-labels.
-		$this->field_option( 'sublabel_hide', $field );
-
 		// Custom CSS classes.
 		$this->field_option( 'css', $field );
 
+		// Hide Label.
+		$this->field_option( 'label_hide', $field );
+
+		// Hide sublabels.
+		$this->field_option( 'sublabel_hide', $field );
+
 		// Options close markup.
-		$args = array(
+		$args = [
 			'markup' => 'close',
-		);
+		];
+
 		$this->field_option( 'advanced-options', $field, $args );
 	}
 
@@ -338,14 +340,14 @@ class StripeCreditCard extends \WPForms_Field {
 		<div class="format-selected format-selected-full">
 
 			<div class="wpforms-field-row">
-				<input type="text" disabled>
-				<label class="wpforms-sub-label"><?php \esc_html_e( 'Card', 'wpforms' ); ?></label>
+				<input type="text" readonly>
+				<label class="wpforms-sub-label"><?php \esc_html_e( 'Card', 'wpforms-stripe' ); ?></label>
 			</div>
 
 			<div class="wpforms-field-row">
-				<div class="wpforms-credit-card-cardname">
-					<input type="text" placeholder="<?php echo \esc_attr( $name_placeholder ); ?>" disabled>
-					<label class="wpforms-sub-label"><?php \esc_html_e( 'Name on Card', 'wpforms' ); ?></label>
+				<div class="wpforms-stripe-credit-card-cardname">
+					<input type="text" placeholder="<?php echo \esc_attr( $name_placeholder ); ?>" readonly>
+					<label class="wpforms-sub-label"><?php \esc_html_e( 'Name on Card', 'wpforms-stripe' ); ?></label>
 				</div>
 			</div>
 		</div>
@@ -374,20 +376,24 @@ class StripeCreditCard extends \WPForms_Field {
 
 		if ( ! \is_ssl() ) {
 			echo '<div class="wpforms-cc-warning wpforms-error-alert">';
-			\esc_html_e( 'This page is insecure. Credit Card field should be used for testing purposes only.', 'wpforms' );
+			\esc_html_e( 'This page is insecure. Credit Card field should be used for testing purposes only.', 'wpforms-stripe' );
 			echo '</div>';
 		}
 
 		if ( ! Helpers::has_stripe_keys() ) {
 			echo '<div class="wpforms-cc-warning wpforms-error-alert">';
-			\esc_html_e( 'Credit Card field is disabled, Stripe keys are missing.', 'wpforms' );
+			\esc_html_e( 'Credit Card field is disabled, Stripe keys are missing.', 'wpforms-stripe' );
 			echo '</div>';
+
+			return;
 		}
 
 		if ( empty( $form_data['payments']['stripe']['enable'] ) ) {
 			echo '<div class="wpforms-cc-warning wpforms-error-alert">';
-			\esc_html_e( 'Credit Card field is disabled, Stripe payments are not enabled in the form settings.', 'wpforms' );
+			\esc_html_e( 'Credit Card field is disabled, Stripe payments are not enabled in the form settings.', 'wpforms-stripe' );
 			echo '</div>';
+
+			return;
 		}
 
 		// Row wrapper.
@@ -461,5 +467,19 @@ class StripeCreditCard extends \WPForms_Field {
 			'id'    => \absint( $field_id ),
 			'type'  => $this->type,
 		);
+	}
+
+	/**
+	 * The field value availability for the entry preview field.
+	 *
+	 * @since 2.6.0
+	 *
+	 * @param string $value The submitted Credit Card detail.
+	 *
+	 * @return bool
+	 */
+	public function entry_preview_availability( $value ) {
+
+		return ! empty( $value );
 	}
 }

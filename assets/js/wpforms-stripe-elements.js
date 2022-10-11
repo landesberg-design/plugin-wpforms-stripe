@@ -126,7 +126,7 @@ var WPFormsStripeElements = window.WPFormsStripeElements || ( function( document
 
 			var regExp = /[“”<>!@$%^&*=~`|{}[\]]/;
 
-			if ( regExp.test( fontFamily ) ) {
+			if ( regExp.test( fontFamily ) || fontFamily.indexOf( 'MS Shell Dlg' ) !== -1 ) {
 				fontFamily = $( 'p' ).css( 'font-family' );
 			}
 

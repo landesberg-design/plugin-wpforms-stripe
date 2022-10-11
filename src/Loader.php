@@ -2,6 +2,8 @@
 
 namespace WPFormsStripe;
 
+use WPFormsStripe\Migrations\Migrations;
+
 /**
  * WPForms Stripe loader class.
  *
@@ -89,9 +91,7 @@ final class Loader {
 		$this->url  = WPFORMS_STRIPE_URL;
 		$this->path = WPFORMS_STRIPE_PATH;
 
-		new Install();
-
-		\add_action( 'wpforms_loaded', [ $this, 'init' ] );
+		add_action( 'wpforms_loaded', [ $this, 'init' ], 15 );
 	}
 
 	/**
@@ -101,23 +101,24 @@ final class Loader {
 	 */
 	public function init() {
 
+		( new Migrations() )->init();
+
 		$this->api = Helpers::get_api_class()->init();
 
-		if ( \wpforms_is_admin_page( 'builder' ) ) {
+		if ( wpforms_is_admin_page( 'builder' ) ) {
 			new Admin\StripePayment();
 		}
 
-		if ( \wpforms_is_admin_page( 'builder' ) || $this->is_new_field_ajax() ) {
+		if ( wpforms_is_admin_page( 'builder' ) || $this->is_new_field_ajax() ) {
 			new Admin\Builder();
 		}
 
-		if ( \wpforms_is_admin_page( 'settings' ) ) {
+		if ( wpforms_is_admin_page( 'settings', 'payments' ) ) {
 			new Admin\Settings();
 			$this->connect = new Admin\Connect();
 		}
 
-		if ( \is_admin() ) {
-			new Admin\Upgrades();
+		if ( is_admin() ) {
 			new Admin\Notices();
 		}
 
@@ -164,7 +165,7 @@ final class Loader {
 	 */
 	public function updater( $key ) {
 
-		_deprecated_function( __CLASS__ . '::' . __METHOD__, '2.5.0' );
+		_deprecated_function( __METHOD__, '2.5.0 of the WPForms Stripe addon' );
 
 		wpforms_stripe_updater( $key );
 	}

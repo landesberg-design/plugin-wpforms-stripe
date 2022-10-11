@@ -89,9 +89,7 @@ var WPFormsSettingsStripe = window.WPFormsSettingsStripe || ( function( document
 				$.alert( {
 					title: wpforms_admin.heads_up,
 					content: '<div id="wpforms-stripe-payment-collection-update-modal">' + wpforms_admin_settings_stripe.payment_collection_type_modal_legacy + '</div>',
-					backgroundDismiss: false,
 					boxWidth: '425px',
-					closeIcon: false,
 					icon: 'fa fa-exclamation-circle',
 					type: 'orange',
 					buttons: {
@@ -116,9 +114,7 @@ var WPFormsSettingsStripe = window.WPFormsSettingsStripe || ( function( document
 				$.alert( {
 					title: wpforms_admin.heads_up,
 					content: '<div id="wpforms-stripe-payment-collection-update-modal">' + wpforms_admin_settings_stripe.payment_collection_type_modal_elements + '</div>',
-					backgroundDismiss: false,
 					boxWidth: '425px',
-					closeIcon: false,
 					icon: 'fa fa-exclamation-circle',
 					type: 'orange',
 					buttons: {

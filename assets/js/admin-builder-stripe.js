@@ -4,7 +4,7 @@
  * WPForms Stripe function.
  *
  * @since 1.2.0
-*/
+ */
 'use strict';
 
 var WPFormsStripe = window.WPFormsStripe || ( function( document, window, $ ) {
@@ -14,7 +14,7 @@ var WPFormsStripe = window.WPFormsStripe || ( function( document, window, $ ) {
 	 *
 	 * @since 1.2.0
 	 *
-	 * @type {Object}
+	 * @type {object}
 	 */
 	var app = {
 
@@ -38,7 +38,7 @@ var WPFormsStripe = window.WPFormsStripe || ( function( document, window, $ ) {
 		ready: function() {
 
 			app.settingsDisplay();
-			app.recurringSettingsDisplay();
+			app.settingsConditions();
 		},
 
 		/**
@@ -49,6 +49,7 @@ var WPFormsStripe = window.WPFormsStripe || ( function( document, window, $ ) {
 		bindUIActions: function() {
 
 			$( document ).on( 'wpformsFieldUpdate', app.settingsDisplay );
+			$( document ).on( 'wpformsFieldUpdate', app.settingsConditions );
 			$( document ).on( 'wpformsSaved', app.requiredFieldsCheck );
 			$( document ).on( 'wpformsFieldDelete', app.disableNotifications );
 		},
@@ -83,13 +84,31 @@ var WPFormsStripe = window.WPFormsStripe || ( function( document, window, $ ) {
 		},
 
 		/**
-		 * Toggles the visibility of the recurring related settings.
+		 * Toggles the visibility of the related settings.
 		 *
-		 * @since 1.2.0
+		 * @since 2.6.0
 		 */
-		recurringSettingsDisplay: function() {
+		settingsConditions: function() {
 
-			/* jshint ignore:start */
+			$( '#wpforms-panel-field-stripe-enable' ).conditions( {
+				conditions: {
+					element: '#wpforms-panel-field-stripe-enable',
+					type: 'checked',
+					operator: 'is',
+				},
+				actions: {
+					if: {
+						element: '.wpforms-panel-content-section-stripe-body',
+						action: 'show',
+					},
+					else: {
+						element: '.wpforms-panel-content-section-stripe-body',
+						action:  'hide',
+					},
+				},
+				effect: 'appear',
+			} );
+
 			$( '#wpforms-panel-field-stripe-recurring-enable' ).conditions( {
 				conditions: {
 					element: '#wpforms-panel-field-stripe-recurring-enable',
@@ -108,7 +127,6 @@ var WPFormsStripe = window.WPFormsStripe || ( function( document, window, $ ) {
 				},
 				effect: 'appear',
 			} );
-			/* jshint ignore:end */
 		},
 
 		/**

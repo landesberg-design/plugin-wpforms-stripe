@@ -1,4 +1,4 @@
-# Copyright (C) 2021 WPForms Stripe
+# Copyright (C) 2022 WPForms Stripe
 # This file is distributed under the same license as the WPForms Stripe package.
 msgid ""
 msgstr ""
@@ -6,13 +6,71 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Content-Transfer-Econdig: 8bit\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Language-Team: WPForms <support@wpforms.com>\n"
+"MIME-Version: 1.0\n"
+"Project-Id-Version: WPForms Stripe\n"
 "X-Poedit-Basepath: ..\n"
 "X-Poedit-KeywordsList: __;_e;_ex:1,2c;_n:1,2;_n_noop:1,2;_nx:1,2,4c;_nx_noop:1,2,3c;_x:1,2c;esc_attr__;esc_attr_e;esc_attr_x:1,2c;esc_html__;esc_html_e;esc_html_x:1,2c\n"
 "X-Poedit-SearchPath-0: .\n"
 "X-Poedit-SearchPathExcluded-0: *.js\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#. translators: %s - WPForms.com documentation page URL.
+#: wpforms-stripe.php:115
+msgid "The WPForms Stripe plugin is not accepting payments anymore because your site is running an outdated version of PHP that is no longer supported and is not compatible with the plugin. <a href=\"%s\" target=\"_blank\" rel=\"noopener noreferrer\">Read more</a> for additional information."
+msgstr ""
+
+#: wpforms-stripe.php:144
+msgid "The WPForms Stripe plugin has been deactivated, because it requires WPForms v1.7.5.5 or later to work."
+msgstr ""
+
+#: src/Process.php:114
+msgid "Stripe payment stopped by conditional logic."
+msgstr ""
+
+#: src/Process.php:122
+msgid "Unable to process payment, please try again later."
+msgstr ""
+
+#: src/Process.php:252
+msgid "Stripe payment stopped, missing keys."
+msgstr ""
+
+#: src/Process.php:258
+msgid "Stripe payment stopped, missing payment fields."
+msgstr ""
+
+#: src/Process.php:265
+msgid "Stripe payment stopped, amount less than minimum charge required."
+msgstr ""
+
+#: src/Process.php:263
+msgid "Stripe payment stopped, invalid/empty amount."
+msgstr ""
+
+#: src/Process.php:350
+msgid "Stripe subscription payment stopped, missing form settings."
+msgstr ""
+
+#: src/Process.php:355
+msgid "Stripe subscription payment stopped, customer email not found."
+msgstr ""
+
+#. translators: %s - error message.
+#: src/Process.php:519
+msgid "Credit Card Payment Error: %s"
+msgstr ""
+
+#: src/Process.php:528
+msgid "Stripe payment stopped by error"
+msgstr ""
+
+#: src/Process.php:526
+msgid "Stripe subscription payment stopped by error"
+msgstr ""
 
 #: src/Admin/Builder.php:65
 msgid "When recurring subscription payments are enabled, the Customer Email is required. Please go to the Stripe payment settings and select a Customer Email."
@@ -23,111 +81,123 @@ msgstr ""
 msgid "Heads up! Stripe payments can't be enabled yet. First, please connect to your Stripe account on the <a href=\"%s\">WPForms Settings</a> page."
 msgstr ""
 
-#: src/Admin/Builder.php:125
+#: src/Admin/Builder.php:126
 msgid "To use Stripe payments you need to add a Credit Card field to the form"
 msgstr ""
 
-#: src/Admin/Builder.php:133
+#: src/Admin/Builder.php:134
 msgid "Enable Stripe payments"
 msgstr ""
 
-#: src/Admin/Builder.php:145
+#: src/Admin/Builder.php:148
 msgid "Payment Description"
 msgstr ""
 
-#: src/Admin/Builder.php:148
+#: src/Admin/Builder.php:151
 msgid "Enter your payment description. Eg: Donation for the soccer team. Only used for standard one-time payments."
 msgstr ""
 
-#: src/Admin/Builder.php:157
+#: src/Admin/Builder.php:160
 msgid "Stripe Payment Receipt"
 msgstr ""
 
-#: src/Admin/Builder.php:161, src/Admin/Builder.php:240
+#: src/Admin/Builder.php:164, src/Admin/Builder.php:244
 msgid "--- Select Email ---"
 msgstr ""
 
-#: src/Admin/Builder.php:162
+#: src/Admin/Builder.php:165
 msgid "If you would like to have Stripe send a receipt after payment, select the email field to use. This is optional but recommended. Only used for standard one-time payments."
 msgstr ""
 
-#: src/Admin/Builder.php:173, src/Admin/Builder.php:253
+#: src/Admin/Builder.php:176, src/Admin/Builder.php:257
 msgid "Process"
 msgstr ""
 
-#: src/Admin/Builder.php:174, src/Admin/Builder.php:254
+#: src/Admin/Builder.php:177, src/Admin/Builder.php:258
 msgid "Don't process"
 msgstr ""
 
-#: src/Admin/Builder.php:176
+#: src/Admin/Builder.php:179
 msgid "this charge if"
 msgstr ""
 
-#: src/Admin/Builder.php:187
+#: src/Admin/Builder.php:180
+msgid "Stripe payment"
+msgstr ""
+
+#: src/Admin/Builder.php:184
+msgid "Subscriptions"
+msgstr ""
+
+#: src/Admin/Builder.php:191
 msgid "Enable recurring subscription payments"
 msgstr ""
 
-#: src/Admin/Builder.php:200
+#: src/Admin/Builder.php:204
 msgid "Plan Name"
 msgstr ""
 
-#: src/Admin/Builder.php:204
+#: src/Admin/Builder.php:208
 msgid "Enter the subscription name. Eg: Email Newsletter. Subscription period and price are automatically appended. If left empty the form name will be used."
 msgstr ""
 
-#: src/Admin/Builder.php:213
+#: src/Admin/Builder.php:217
 msgid "Recurring Period"
 msgstr ""
 
-#: src/Admin/Builder.php:219, src/API/Common.php:278
+#: src/Admin/Builder.php:223, src/API/Common.php:278
 msgid "Daily"
 msgstr ""
 
-#: src/Admin/Builder.php:220, src/API/Common.php:284
+#: src/Admin/Builder.php:224, src/API/Common.php:284
 msgid "Weekly"
 msgstr ""
 
-#: src/Admin/Builder.php:221, src/API/Common.php:290
+#: src/Admin/Builder.php:225, src/API/Common.php:290
 msgid "Monthly"
 msgstr ""
 
-#: src/Admin/Builder.php:222, src/API/Common.php:296
+#: src/Admin/Builder.php:226, src/API/Common.php:296
 msgid "Quarterly"
 msgstr ""
 
-#: src/Admin/Builder.php:223, src/API/Common.php:302
+#: src/Admin/Builder.php:227, src/API/Common.php:302
 msgid "Semi-Yearly"
 msgstr ""
 
-#: src/Admin/Builder.php:224, src/API/Common.php:308
+#: src/Admin/Builder.php:228, src/API/Common.php:308
 msgid "Yearly"
 msgstr ""
 
-#: src/Admin/Builder.php:226
+#: src/Admin/Builder.php:230
 msgid "How often you would like the charge to recur."
 msgstr ""
 
-#: src/Admin/Builder.php:235
+#: src/Admin/Builder.php:239
 msgid "Customer Email"
 msgstr ""
 
-#: src/Admin/Builder.php:241
-msgid "Select the field that contains the customers email address. This field is required."
+#: src/Admin/Builder.php:245
+msgid "Select the field that contains the customer's email address. This field is required."
 msgstr ""
 
-#: src/Admin/Builder.php:256
+#: src/Admin/Builder.php:260
 msgid "payment as recurring if"
 msgstr ""
 
-#: src/Admin/Builder.php:276
-msgid "Enable for Stripe completed payments"
+#: src/Admin/Builder.php:261
+msgid "Stripe Recurring payment"
 msgstr ""
 
 #: src/Admin/Builder.php:283
+msgid "Enable for Stripe completed payments"
+msgstr ""
+
+#: src/Admin/Builder.php:290
 msgid "When enabled this notification will <em>only</em> be sent when a Stripe payment has been successfully <strong>completed</strong>."
 msgstr ""
 
-#: src/Admin/Builder.php:291
+#: src/Admin/Builder.php:298
 msgid "Stripe completed payments"
 msgstr ""
 
@@ -210,34 +280,34 @@ msgstr ""
 msgid "Switch Accounts"
 msgstr ""
 
-#: src/Admin/Settings.php:356
+#: src/Admin/Settings.php:355
 msgid "Connect with Stripe"
 msgstr ""
 
 #. translators: %s - WPForms.com Stripe documentation article URL.
-#: src/Admin/Settings.php:361
+#: src/Admin/Settings.php:359
 msgid "Securely connect to Stripe with just a few clicks to begin accepting payments! <a href=\"%s\" target=\"_blank\" rel=\"noopener noreferrer\">Learn more</a> about connecting with Stripe."
 msgstr ""
 
-#: src/Admin/Settings.php:378
+#: src/Admin/Settings.php:376
 msgid "You are currently connected to Stripe using a deprecated authentication method."
 msgstr ""
 
-#: src/Admin/Settings.php:379
+#: src/Admin/Settings.php:377
 msgid "Please re-authenticate using Stripe Connect to use a more secure authentication method."
 msgstr ""
 
 #. translators: %s - WPForms.com Stripe documentation article URL.
-#: src/Admin/Settings.php:401
+#: src/Admin/Settings.php:399
 msgid "If you chose to update the payment collection type, the form(s) below will need to be manually updated. <a href=\"%s\" target=\"_blank\" rel=\"noopener noreferrer\">Learn more</a>."
 msgstr ""
 
 #. translators: %s - WPForms.com Stripe documentation article URL.
-#: src/Admin/Settings.php:416
+#: src/Admin/Settings.php:414
 msgid "<strong>IMPORTANT:</strong> The form(s) below need to be manually updated. Payments cannot be processed until the updates are completed. <a href=\"%s\" target=\"_blank\" rel=\"noopener noreferrer\">Learn more</a>."
 msgstr ""
 
-#: src/Admin/Settings.php:487
+#: src/Admin/Settings.php:485
 msgid "Stripe is not connected for your current payment mode. Please press the \"Connect with Stripe\" button to complete this setup."
 msgstr ""
 
@@ -297,68 +367,42 @@ msgstr ""
 msgid "Stripe subscription was not confirmed. Please check your Stripe dashboard."
 msgstr ""
 
-#: src/Fields/StripeCreditCard.php:188
-msgid "<p>AJAX form submissions are required when using the Stripe Credit Card field.</p><p>To proceed, please go to <strong>Settings » General</strong> and check <strong>Enable AJAX form submission</strong>.</p>"
+#: src/Fields/StripeCreditCard.php:22
+msgid "Stripe Credit Card"
 msgstr ""
 
-#: src/Fields/StripeCreditCard.php:196
+#: src/Fields/StripeCreditCard.php:77, src/Fields/StripeCreditCard.php:344
+msgid "Card"
+msgstr ""
+
+#: src/Fields/StripeCreditCard.php:98, src/Fields/StripeCreditCard.php:350
+msgid "Name on Card"
+msgstr ""
+
+#: src/Fields/StripeCreditCard.php:189
+msgid "<p>AJAX form submissions are required when using the Stripe Credit Card field.</p><p>To proceed, please go to <strong>Settings » General » Advanced</strong> and check <strong>Enable AJAX form submission</strong>.</p>"
+msgstr ""
+
+#: src/Fields/StripeCreditCard.php:197
 msgid "<p>Stripe account connection is required when using the Stripe Credit Card field.</p><p>To proceed, please go to <strong>WPForms Settings » Payments » Stripe</strong> and press <strong>Connect with Stripe</strong> button.</p>"
 msgstr ""
 
-#: src/Fields/StripeCreditCard.php:204
+#: src/Fields/StripeCreditCard.php:205
 msgid "<p>Stripe Payments must be enabled when using the Stripe Credit Card field.</p><p>To proceed, please go to <strong>Payments » Stripe</strong> and check <strong>Enable Stripe payments</strong>.</p>"
 msgstr ""
 
-#: src/Process.php:114
-msgid "Stripe payment stopped by conditional logic."
+#: src/Fields/StripeCreditCard.php:299
+msgid "Name on Card Placeholder Text"
 msgstr ""
 
-#: src/Process.php:122
-msgid "Unable to process payment, please try again later."
+#: src/Fields/StripeCreditCard.php:379
+msgid "This page is insecure. Credit Card field should be used for testing purposes only."
 msgstr ""
 
-#: src/Process.php:246
-msgid "Stripe payment stopped, missing keys."
+#: src/Fields/StripeCreditCard.php:385
+msgid "Credit Card field is disabled, Stripe keys are missing."
 msgstr ""
 
-#: src/Process.php:252
-msgid "Stripe payment stopped, missing payment fields."
-msgstr ""
-
-#: src/Process.php:259
-msgid "Stripe payment stopped, amount less than minimum charge required."
-msgstr ""
-
-#: src/Process.php:257
-msgid "Stripe payment stopped, invalid/empty amount."
-msgstr ""
-
-#: src/Process.php:344
-msgid "Stripe subscription payment stopped, missing form settings."
-msgstr ""
-
-#: src/Process.php:349
-msgid "Stripe subscription payment stopped, customer email not found."
-msgstr ""
-
-#. translators: %s - error message.
-#: src/Process.php:513
-msgid "Credit Card Payment Error: %s"
-msgstr ""
-
-#: src/Process.php:522
-msgid "Stripe payment stopped by error"
-msgstr ""
-
-#: src/Process.php:520
-msgid "Stripe subscription payment stopped by error"
-msgstr ""
-
-#. translators: %s - WPForms.com documentation page URL.
-#: wpforms-stripe.php:112
-msgid "The WPForms Stripe plugin is not accepting payments anymore because your site is running an outdated version of PHP that is no longer supported and is not compatible with the plugin. <a href=\"%s\" target=\"_blank\" rel=\"noopener noreferrer\">Read more</a> for additional information."
-msgstr ""
-
-#: wpforms-stripe.php:139
-msgid "The WPForms Stripe plugin has been deactivated, because it requires WPForms v1.6.6 or later to work."
+#: src/Fields/StripeCreditCard.php:393
+msgid "Credit Card field is disabled, Stripe payments are not enabled in the form settings."
 msgstr ""

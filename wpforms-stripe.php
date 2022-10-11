@@ -3,11 +3,11 @@
  * Plugin Name:       WPForms Stripe
  * Plugin URI:        https://wpforms.com
  * Description:       Stripe integration with WPForms.
- * Requires at least: 4.9
+ * Requires at least: 5.2
  * Requires PHP:      5.6
  * Author:            WPForms
  * Author URI:        https://wpforms.com
- * Version:           2.5.0
+ * Version:           2.7.0
  * Text Domain:       wpforms-stripe
  * Domain Path:       languages
  *
@@ -30,11 +30,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+use WPFormsStripe\Install;
+use WPFormsStripe\Loader;
+
+// phpcs:disable WPForms.Comments.PHPDocDefine.MissPHPDoc
 // Plugin constants.
-define( 'WPFORMS_STRIPE_VERSION', '2.5.0' );
+define( 'WPFORMS_STRIPE_VERSION', '2.7.0' );
 define( 'WPFORMS_STRIPE_FILE', __FILE__ );
 define( 'WPFORMS_STRIPE_PATH', plugin_dir_path( WPFORMS_STRIPE_FILE ) );
 define( 'WPFORMS_STRIPE_URL', plugin_dir_url( WPFORMS_STRIPE_FILE ) );
+// phpcs:enable WPForms.Comments.PHPDocDefine.MissPHPDoc
 
 /**
  * Load the provider class.
@@ -42,9 +47,6 @@ define( 'WPFORMS_STRIPE_URL', plugin_dir_url( WPFORMS_STRIPE_FILE ) );
  * @since 2.5.0
  */
 function wpforms_stripe_load() {
-
-	// Load translated strings.
-	load_plugin_textdomain( 'wpforms-stripe', false, dirname( plugin_basename( WPFORMS_STRIPE_FILE ) ) . '/languages/' );
 
 	// Check requirements.
 	if ( ! wpforms_stripe_required() ) {
@@ -54,28 +56,29 @@ function wpforms_stripe_load() {
 	// Load the plugin.
 	wpforms_stripe();
 }
-
-add_action( 'plugins_loaded', 'wpforms_stripe_load' );
+add_action( 'wpforms_loaded', 'wpforms_stripe_load' );
 
 /**
  * Check addon requirements.
  *
  * @since 2.5.0
+ *
+ * @return bool
  */
 function wpforms_stripe_required() {
 
-	if ( version_compare( PHP_VERSION, '5.6', '<' ) ) {
+	if ( PHP_VERSION_ID < 50600 ) {
 		add_action( 'admin_init', 'wpforms_stripe_deactivate' );
 		add_action( 'admin_notices', 'wpforms_stripe_fail_php_version' );
 
 		return false;
 	}
 
-	if ( ! function_exists( 'wpforms' ) || ! wpforms()->pro ) {
+	if ( ! function_exists( 'wpforms' ) ) {
 		return false;
 	}
 
-	if ( version_compare( wpforms()->version, '1.6.6', '<' ) ) {
+	if ( version_compare( wpforms()->version, '1.7.5.5', '<' ) ) {
 		add_action( 'admin_init', 'wpforms_stripe_deactivate' );
 		add_action( 'admin_notices', 'wpforms_stripe_fail_wpforms_version' );
 
@@ -100,7 +103,7 @@ function wpforms_stripe_deactivate() {
 }
 
 /**
- * Admin notice for minimum PHP version.
+ * Admin notice for a minimum PHP version.
  *
  * @since 2.5.0
  */
@@ -123,9 +126,11 @@ function wpforms_stripe_fail_php_version() {
 
 	echo '</p></div>';
 
-	if ( isset( $_GET['activate'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		unset( $_GET['activate'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	// phpcs:disable WordPress.Security.NonceVerification.Recommended
+	if ( isset( $_GET['activate'] ) ) {
+		unset( $_GET['activate'] );
 	}
+	// phpcs:enable WordPress.Security.NonceVerification.Recommended
 }
 
 /**
@@ -136,13 +141,14 @@ function wpforms_stripe_fail_php_version() {
 function wpforms_stripe_fail_wpforms_version() {
 
 	echo '<div class="notice notice-error"><p>';
-	esc_html_e( 'The WPForms Stripe plugin has been deactivated, because it requires WPForms v1.6.6 or later to work.', 'wpforms-stripe' );
+	esc_html_e( 'The WPForms Stripe plugin has been deactivated, because it requires WPForms v1.7.5.5 or later to work.', 'wpforms-stripe' );
 	echo '</p></div>';
 
-	if ( isset( $_GET['activate'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		unset( $_GET['activate'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	// phpcs:disable WordPress.Security.NonceVerification.Recommended
+	if ( isset( $_GET['activate'] ) ) {
+		unset( $_GET['activate'] );
 	}
-
+	// phpcs:enable WordPress.Security.NonceVerification.Recommended
 }
 
 /**
@@ -153,7 +159,7 @@ function wpforms_stripe_fail_wpforms_version() {
  */
 function wpforms_stripe_deactivate_msg() {
 
-	_deprecated_function( __FUNCTION__, '2.5.0' );
+	_deprecated_function( __FUNCTION__, '2.5.0 of the WPForms Stripe addon' );
 
 	wpforms_stripe_fail_php_version();
 }
@@ -163,13 +169,11 @@ function wpforms_stripe_deactivate_msg() {
  *
  * @since 2.5.0
  *
- * @return \WPFormsStripe\Loader
+ * @return Loader
  */
 function wpforms_stripe() {
 
-	require_once WPFORMS_STRIPE_PATH . 'vendor/autoload.php';
-
-	return \WPFormsStripe\Loader::get_instance();
+	return Loader::get_instance();
 }
 
 /**
@@ -181,7 +185,7 @@ function wpforms_stripe() {
  */
 function wpforms_stripe_updater( $key ) {
 
-	new \WPForms_Updater(
+	new WPForms_Updater(
 		[
 			'plugin_name' => 'WPForms Stripe',
 			'plugin_slug' => 'wpforms-stripe',
@@ -193,5 +197,9 @@ function wpforms_stripe_updater( $key ) {
 		]
 	);
 }
-
 add_action( 'wpforms_updater', 'wpforms_stripe_updater' );
+
+require_once WPFORMS_STRIPE_PATH . 'vendor/autoload.php';
+
+// Load installation things immediately for a reason how activation hook works.
+new Install();

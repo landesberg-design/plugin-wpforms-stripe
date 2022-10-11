@@ -1,6 +1,41 @@
 # Change Log
 All notable changes to this project will be documented in this file, formatted via [this recommendation](https://keepachangelog.com/).
 
+## [2.7.0] - 2022-10-04
+### Changed
+- Stripe Credit Card fields are not shown anymore if Stripe Payments are not enabled or Stripe Keys are not set.
+- Stripe completed payment notifications are sent for completed payments only.
+
+### Fixed
+- Entries Search by Payments Details did not work for Stripe payments for users who upgraded from v2.5.0 to v2.6.0 or v2.6.1.
+
+## [2.6.1] - 2022-07-28
+### Changed
+- Minimum WPForms version supported is 1.7.5.5.
+
+### Fixed
+- Some older migrations were running in incorrect order effectively breaking the Stripe integration by switching users to an older Stripe API version.
+- Because of the migration bug, explained above, the Stripe Credit Card field was unavailable in the Builder and was ignored on the front end.
+
+## [2.6.0] - 2022-07-20
+### IMPORTANT
+- Support for WordPress 5.1 has been discontinued. If you are running WordPress 5.1, you MUST upgrade WordPress before installing the new WPForms Stripe. Failure to do that will disable the new WPForms Stripe functionality.
+
+### Added
+- Compatibility with WPForms 1.6.8 and the updated Form Builder.
+
+### Changed
+- Show settings in the Form Builder only if they are enabled.
+- Connect button UI improvements on Settings > Payments admin page.
+- Minimum WPForms version supported is 1.7.5.
+
+### Fixed
+- Certain strings were not translatable.
+- Improved performance on the WPForms Settings pages.
+- The "Name on Card" placeholder value is not updated in the Form Builder preview.
+- Some fonts were not working properly with the Credit Card field.
+- Compatibility with WordPress Multisite installations.
+
 ## [2.5.0] - 2021-03-31
 ### Added
 - New "Switch Accounts" link in the addon settings to change the Stripe account used.

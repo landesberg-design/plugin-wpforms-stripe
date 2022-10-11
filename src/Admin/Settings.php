@@ -182,7 +182,7 @@ class Settings {
 			),
 			'type' => 'checkbox',
 		);
-		if ( \absint( Helpers::get_api_version() ) === 2 || \get_option( 'wpforms_stripe_v230_upgrade', false ) ) {
+		if ( absint( Helpers::get_api_version() ) === 2 || ! empty( $this->payment_forms['legacy'] ) ) {
 			$settings['payments']['stripe-api-version'] = array(
 				'id'         => 'stripe-api-version',
 				'name'       => \esc_html__( 'Payment Collection Type', 'wpforms-stripe' ),
@@ -347,36 +347,34 @@ class Settings {
 	public function get_disconnected_status_content( $mode = '' ) {
 
 		$mode        = Helpers::validate_stripe_mode( $mode );
-		$account     = \wpforms_stripe()->connect->get_connected_account( $mode );
-		$connect_url = \wpforms_stripe()->connect->get_connect_with_stripe_url( $mode );
-		$output      = '';
+		$account     = wpforms_stripe()->connect->get_connected_account( $mode );
+		$connect_url = wpforms_stripe()->connect->get_connect_with_stripe_url( $mode );
 
-		$output .=
+		$output =
 			'<div class="wpforms-connect">' .
-			'<a href="' . \esc_url( $connect_url ) . '" title="' . \esc_html__( 'Connect with Stripe', 'wpforms-stripe' ) . '"><img src="' . \esc_url( \plugin_dir_url( \WPFORMS_STRIPE_FILE ) ) . '/assets/images/stripe-connect.png"></a>' .
+			'<a href="' . esc_url( $connect_url ) . '" class="wpforms-stripe-connect-button" title="' . esc_attr__( 'Connect with Stripe', 'wpforms-stripe' ) . '"></a>' .
 			'<p>' .
-			\sprintf(
-				\wp_kses(
-					/* translators: %s - WPForms.com Stripe documentation article URL. */
-					\__( 'Securely connect to Stripe with just a few clicks to begin accepting payments! <a href="%s" target="_blank" rel="noopener noreferrer">Learn more</a> about connecting with Stripe.', 'wpforms-stripe' ),
-					array(
-						'a' => array(
-							'href'   => array(),
-							'target' => array(),
-							'rel'    => array(),
-						),
-					)
+			sprintf(
+				wp_kses( /* translators: %s - WPForms.com Stripe documentation article URL. */
+					__( 'Securely connect to Stripe with just a few clicks to begin accepting payments! <a href="%s" target="_blank" rel="noopener noreferrer">Learn more</a> about connecting with Stripe.', 'wpforms-stripe' ),
+					[
+						'a' => [
+							'href'   => [],
+							'target' => [],
+							'rel'    => [],
+						],
+					]
 				),
 				'https://wpforms.com/docs/how-to-install-and-use-the-stripe-addon-with-wpforms/#connect-stripe'
 			) .
 			'</p>' .
 			'</div>';
 
-		if ( Helpers::has_stripe_keys( $mode ) && empty( $account->id ) ) {
+		if ( ! isset( $account->id ) && Helpers::has_stripe_keys( $mode ) ) {
 			$output .=
 				'<div class="wpforms-reconnect">' .
-				'<p>' . \esc_html__( 'You are currently connected to Stripe using a deprecated authentication method.', 'wpforms-stripe' ) . '</p>' .
-				'<p>' . \esc_html__( 'Please re-authenticate using Stripe Connect to use a more secure authentication method.', 'wpforms-stripe' ) . '</p>' .
+				'<p>' . esc_html__( 'You are currently connected to Stripe using a deprecated authentication method.', 'wpforms-stripe' ) . '</p>' .
+				'<p>' . esc_html__( 'Please re-authenticate using Stripe Connect to use a more secure authentication method.', 'wpforms-stripe' ) . '</p>' .
 				'</div>';
 		}
 
@@ -483,7 +481,7 @@ class Settings {
 			return;
 		}
 
-		\WPForms_Admin_Notice::warning(
+		\WPForms\Admin\Notice::warning(
 			\esc_html__( 'Stripe is not connected for your current payment mode. Please press the "Connect with Stripe" button to complete this setup.', 'wpforms-stripe' )
 		);
 	}

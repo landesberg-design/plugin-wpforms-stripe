@@ -105,157 +105,164 @@ class Builder {
 
 		if ( ! Helpers::has_stripe_keys() ) {
 			echo '<p class="wpforms-alert wpforms-alert-info">';
-			\printf(
-				\wp_kses(
+			printf(
+				wp_kses(
 					/* translators: %s - Admin area Payments settings page URL. */
-					\__( 'Heads up! Stripe payments can\'t be enabled yet. First, please connect to your Stripe account on the <a href="%s">WPForms Settings</a> page.', 'wpforms-stripe' ),
-					array(
-						'a' => array(
-							'href' => array(),
-						),
-					)
+					__( 'Heads up! Stripe payments can\'t be enabled yet. First, please connect to your Stripe account on the <a href="%s">WPForms Settings</a> page.', 'wpforms-stripe' ),
+					[
+						'a' => [
+							'href' => [],
+						],
+					]
 				),
-				\esc_url( \admin_url( 'admin.php?page=wpforms-settings&view=payments' ) )
+				esc_url( admin_url( 'admin.php?page=wpforms-settings&view=payments' ) )
 			);
 			echo '</p>';
+
 			return;
 		}
 
 		echo '<p class="wpforms-alert wpforms-alert-info" id="stripe-credit-card-alert">';
-		\esc_html_e( 'To use Stripe payments you need to add a Credit Card field to the form', 'wpforms-stripe' );
+		esc_html_e( 'To use Stripe payments you need to add a Credit Card field to the form', 'wpforms-stripe' );
 		echo '</p>';
 
-		\wpforms_panel_field(
-			'checkbox',
+		wpforms_panel_field(
+			'toggle',
 			'stripe',
 			'enable',
 			$form_data,
-			\esc_html__( 'Enable Stripe payments', 'wpforms-stripe' ),
-			array(
+			esc_html__( 'Enable Stripe payments', 'wpforms-stripe' ),
+			[
 				'parent'  => 'payments',
 				'default' => '0',
-			)
+			]
 		);
 
-		\wpforms_panel_field(
+		echo '<div class="wpforms-panel-content-section-stripe-body">';
+
+		wpforms_panel_field(
 			'text',
 			'stripe',
 			'payment_description',
 			$form_data,
-			\esc_html__( 'Payment Description', 'wpforms-stripe' ),
-			array(
+			esc_html__( 'Payment Description', 'wpforms-stripe' ),
+			[
 				'parent'  => 'payments',
-				'tooltip' => \esc_html__( 'Enter your payment description. Eg: Donation for the soccer team. Only used for standard one-time payments.', 'wpforms-stripe' ),
-			)
+				'tooltip' => esc_html__( 'Enter your payment description. Eg: Donation for the soccer team. Only used for standard one-time payments.', 'wpforms-stripe' ),
+			]
 		);
 
-		\wpforms_panel_field(
+		wpforms_panel_field(
 			'select',
 			'stripe',
 			'receipt_email',
 			$form_data,
-			\esc_html__( 'Stripe Payment Receipt', 'wpforms-stripe' ),
-			array(
+			esc_html__( 'Stripe Payment Receipt', 'wpforms-stripe' ),
+			[
 				'parent'      => 'payments',
-				'field_map'   => array( 'email' ),
-				'placeholder' => \esc_html__( '--- Select Email ---', 'wpforms-stripe' ),
-				'tooltip'     => \esc_html__( 'If you would like to have Stripe send a receipt after payment, select the email field to use. This is optional but recommended. Only used for standard one-time payments.', 'wpforms-stripe' ),
-			)
+				'field_map'   => [ 'email' ],
+				'placeholder' => esc_html__( '--- Select Email ---', 'wpforms-stripe' ),
+				'tooltip'     => esc_html__( 'If you would like to have Stripe send a receipt after payment, select the email field to use. This is optional but recommended. Only used for standard one-time payments.', 'wpforms-stripe' ),
+			]
 		);
 
-		\wpforms_conditional_logic()->builder_block(
-			array(
+		wpforms_conditional_logic()->builder_block(
+			[
 				'form'        => $form_data,
 				'type'        => 'panel',
 				'panel'       => 'stripe',
 				'parent'      => 'payments',
-				'actions'     => array(
-					'go'   => \esc_html__( 'Process', 'wpforms-stripe' ),
-					'stop' => \esc_html__( 'Don\'t process', 'wpforms-stripe' ),
-				),
-				'action_desc' => \esc_html__( 'this charge if', 'wpforms-stripe' ),
-			)
+				'actions'     => [
+					'go'   => esc_html__( 'Process', 'wpforms-stripe' ),
+					'stop' => esc_html__( 'Don\'t process', 'wpforms-stripe' ),
+				],
+				'action_desc' => esc_html__( 'this charge if', 'wpforms-stripe' ),
+				'reference'   => esc_html__( 'Stripe payment', 'wpforms-stripe' ),
+			]
 		);
 
-		echo '<h2>Subscriptions</h2>';
+		printf( '<h2>%s</h2>', esc_html__( 'Subscriptions', 'wpforms-stripe' ) );
 
-		\wpforms_panel_field(
-			'checkbox',
+		wpforms_panel_field(
+			'toggle',
 			'stripe',
 			'enable',
 			$form_data,
-			\esc_html__( 'Enable recurring subscription payments', 'wpforms-stripe' ),
-			array(
+			esc_html__( 'Enable recurring subscription payments', 'wpforms-stripe' ),
+			[
 				'parent'     => 'payments',
 				'subsection' => 'recurring',
 				'default'    => '0',
-			)
+			]
 		);
 
-		\wpforms_panel_field(
+		wpforms_panel_field(
 			'text',
 			'stripe',
 			'name',
 			$form_data,
-			\esc_html__( 'Plan Name', 'wpforms-stripe' ),
-			array(
+			esc_html__( 'Plan Name', 'wpforms-stripe' ),
+			[
 				'parent'     => 'payments',
 				'subsection' => 'recurring',
-				'tooltip'    => \esc_html__( 'Enter the subscription name. Eg: Email Newsletter. Subscription period and price are automatically appended. If left empty the form name will be used.', 'wpforms-stripe' ),
-			)
+				'tooltip'    => esc_html__( 'Enter the subscription name. Eg: Email Newsletter. Subscription period and price are automatically appended. If left empty the form name will be used.', 'wpforms-stripe' ),
+			]
 		);
 
-		\wpforms_panel_field(
+		wpforms_panel_field(
 			'select',
 			'stripe',
 			'period',
 			$form_data,
-			\esc_html__( 'Recurring Period', 'wpforms-stripe' ),
-			array(
+			esc_html__( 'Recurring Period', 'wpforms-stripe' ),
+			[
 				'parent'     => 'payments',
 				'subsection' => 'recurring',
 				'default'    => 'yearly',
-				'options'    => array(
-					'daily'      => \esc_html__( 'Daily', 'wpforms-stripe' ),
-					'weekly'     => \esc_html__( 'Weekly', 'wpforms-stripe' ),
-					'monthly'    => \esc_html__( 'Monthly', 'wpforms-stripe' ),
-					'quarterly'  => \esc_html__( 'Quarterly', 'wpforms-stripe' ),
-					'semiyearly' => \esc_html__( 'Semi-Yearly', 'wpforms-stripe' ),
-					'yearly'     => \esc_html__( 'Yearly', 'wpforms-stripe' ),
-				),
-				'tooltip'    => \esc_html__( 'How often you would like the charge to recur.', 'wpforms-stripe' ),
-			)
+				'options'    => [
+					'daily'      => esc_html__( 'Daily', 'wpforms-stripe' ),
+					'weekly'     => esc_html__( 'Weekly', 'wpforms-stripe' ),
+					'monthly'    => esc_html__( 'Monthly', 'wpforms-stripe' ),
+					'quarterly'  => esc_html__( 'Quarterly', 'wpforms-stripe' ),
+					'semiyearly' => esc_html__( 'Semi-Yearly', 'wpforms-stripe' ),
+					'yearly'     => esc_html__( 'Yearly', 'wpforms-stripe' ),
+				],
+				'tooltip'    => esc_html__( 'How often you would like the charge to recur.', 'wpforms-stripe' ),
+			]
 		);
 
-		\wpforms_panel_field(
+		wpforms_panel_field(
 			'select',
 			'stripe',
 			'email',
 			$form_data,
-			\esc_html__( 'Customer Email', 'wpforms-stripe' ),
-			array(
+			esc_html__( 'Customer Email', 'wpforms-stripe' ),
+			[
 				'parent'      => 'payments',
 				'subsection'  => 'recurring',
-				'field_map'   => array( 'email' ),
-				'placeholder' => \esc_html__( '--- Select Email ---', 'wpforms-stripe' ),
-				'tooltip'     => \esc_html__( 'Select the field that contains the customers email address. This field is required.', 'wpforms-stripe' ),
-			)
+				'field_map'   => [ 'email' ],
+				'placeholder' => esc_html__( '--- Select Email ---', 'wpforms-stripe' ),
+				'tooltip'     => esc_html__( "Select the field that contains the customer's email address. This field is required.", 'wpforms-stripe' ),
+			]
 		);
 
-		\wpforms_conditional_logic()->builder_block(
-			array(
+		wpforms_conditional_logic()->builder_block(
+			[
 				'form'        => $form_data,
 				'type'        => 'panel',
 				'panel'       => 'stripe',
 				'parent'      => 'payments',
 				'subsection'  => 'recurring',
-				'actions'     => array(
-					'go'   => \esc_html__( 'Process', 'wpforms-stripe' ),
-					'stop' => \esc_html__( 'Don\'t process', 'wpforms-stripe' ),
-				),
-				'action_desc' => \esc_html__( 'payment as recurring if', 'wpforms-stripe' ),
-			)
+				'actions'     => [
+					'go'   => esc_html__( 'Process', 'wpforms-stripe' ),
+					'stop' => esc_html__( 'Don\'t process', 'wpforms-stripe' ),
+				],
+				'action_desc' => esc_html__( 'payment as recurring if', 'wpforms-stripe' ),
+				'reference'   => esc_html__( 'Stripe Recurring payment', 'wpforms-stripe' ),
+			]
 		);
+
+		echo '</div>';
 	}
 
 	/**
@@ -269,7 +276,7 @@ class Builder {
 	public function notification_settings( $settings, $id ) {
 
 		wpforms_panel_field(
-			'checkbox',
+			'toggle',
 			'notifications',
 			'stripe',
 			$settings->form_data,
