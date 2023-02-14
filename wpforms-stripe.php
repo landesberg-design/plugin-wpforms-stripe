@@ -7,7 +7,7 @@
  * Requires PHP:      5.6
  * Author:            WPForms
  * Author URI:        https://wpforms.com
- * Version:           2.7.0
+ * Version:           2.9.0
  * Text Domain:       wpforms-stripe
  * Domain Path:       languages
  *
@@ -35,7 +35,7 @@ use WPFormsStripe\Loader;
 
 // phpcs:disable WPForms.Comments.PHPDocDefine.MissPHPDoc
 // Plugin constants.
-define( 'WPFORMS_STRIPE_VERSION', '2.7.0' );
+define( 'WPFORMS_STRIPE_VERSION', '2.9.0' );
 define( 'WPFORMS_STRIPE_FILE', __FILE__ );
 define( 'WPFORMS_STRIPE_PATH', plugin_dir_path( WPFORMS_STRIPE_FILE ) );
 define( 'WPFORMS_STRIPE_URL', plugin_dir_url( WPFORMS_STRIPE_FILE ) );
@@ -78,7 +78,7 @@ function wpforms_stripe_required() {
 		return false;
 	}
 
-	if ( version_compare( wpforms()->version, '1.7.5.5', '<' ) ) {
+	if ( version_compare( wpforms()->version, '1.7.7.2', '<' ) ) {
 		add_action( 'admin_init', 'wpforms_stripe_deactivate' );
 		add_action( 'admin_notices', 'wpforms_stripe_fail_wpforms_version' );
 
@@ -141,7 +141,7 @@ function wpforms_stripe_fail_php_version() {
 function wpforms_stripe_fail_wpforms_version() {
 
 	echo '<div class="notice notice-error"><p>';
-	esc_html_e( 'The WPForms Stripe plugin has been deactivated, because it requires WPForms v1.7.5.5 or later to work.', 'wpforms-stripe' );
+	esc_html_e( 'The WPForms Stripe plugin has been deactivated, because it requires WPForms v1.7.7.2 or later to work.', 'wpforms-stripe' );
 	echo '</p></div>';
 
 	// phpcs:disable WordPress.Security.NonceVerification.Recommended

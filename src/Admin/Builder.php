@@ -123,7 +123,7 @@ class Builder {
 		}
 
 		echo '<p class="wpforms-alert wpforms-alert-info" id="stripe-credit-card-alert">';
-		esc_html_e( 'To use Stripe payments you need to add a Credit Card field to the form', 'wpforms-stripe' );
+		esc_html_e( 'To use Stripe payments you need to add the Stripe Credit Card field to the form', 'wpforms-stripe' );
 		echo '</p>';
 
 		wpforms_panel_field(
@@ -139,6 +139,12 @@ class Builder {
 		);
 
 		echo '<div class="wpforms-panel-content-section-stripe-body">';
+
+		if ( ! Helpers::is_license_active() ) {
+			echo '<p class="wpforms-alert wpforms-alert-info">';
+			echo Notices::get_fee_notice(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			echo '</p>';
+		}
 
 		wpforms_panel_field(
 			'text',

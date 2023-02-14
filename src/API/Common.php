@@ -331,7 +331,7 @@ abstract class Common {
 		);
 
 		$plan_args = array(
-			'amount'         => $args['amount'] * 100,
+			'amount'         => $args['amount'],
 			'interval'       => $period['interval'],
 			'interval_count' => $period['count'],
 			'product'        => array(
@@ -380,7 +380,7 @@ abstract class Common {
 		$plan_id = \sprintf(
 			'%s_%s_%s',
 			$slug,
-			$args['amount'] * 100,
+			$args['amount'],
 			$period['name']
 		);
 

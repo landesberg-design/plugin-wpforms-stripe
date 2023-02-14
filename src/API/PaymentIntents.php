@@ -282,16 +282,17 @@ class PaymentIntents extends Common implements ApiInterface {
 		}
 
 		$sub_args = [
-			'items'    => [
+			'items'                   => [
 				[
 					'plan' => $this->get_plan_id( $args ),
 				],
 			],
-			'metadata' => [
+			'metadata'                => [
 				'form_name' => $args['form_title'],
 				'form_id'   => $args['form_id'],
 			],
-			'expand'   => [ 'latest_invoice.payment_intent' ],
+			'expand'                  => [ 'latest_invoice.payment_intent' ],
+			'application_fee_percent' => $args['application_fee_percent'],
 		];
 
 		try {
@@ -320,8 +321,9 @@ class PaymentIntents extends Common implements ApiInterface {
 
 			$this->intent = $this->subscription->latest_invoice->payment_intent;
 
-			if ( ! \in_array( $this->intent->status, array( 'succeeded', 'requires_action' ), true ) ) {
-				$this->error = \esc_html__( 'Stripe subscription stopped. invalid PaymentIntent status.', 'wpforms-stripe' );
+			if ( ! $this->intent || ! in_array( $this->intent->status, [ 'succeeded', 'requires_action' ], true ) ) {
+				$this->error = esc_html__( 'Stripe subscription stopped. invalid PaymentIntent status.', 'wpforms-stripe' );
+
 				return;
 			}
 

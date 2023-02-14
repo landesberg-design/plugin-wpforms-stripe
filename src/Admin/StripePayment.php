@@ -16,11 +16,12 @@ class StripePayment extends \WPForms_Payment {
 	 */
 	public function init() {
 
-		$this->version  = \WPFORMS_STRIPE_VERSION;
-		$this->name     = 'Stripe';
-		$this->slug     = 'stripe';
-		$this->priority = 10;
-		$this->icon     = \wpforms_stripe()->url . 'assets/images/addon-icon-stripe.png';
+		$this->version     = WPFORMS_STRIPE_VERSION;
+		$this->name        = 'Stripe';
+		$this->slug        = 'stripe';
+		$this->priority    = 0;
+		$this->recommended = true;
+		$this->icon        = wpforms_stripe()->url . 'assets/images/addon-icon-stripe.png';
 	}
 
 	/**

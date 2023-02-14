@@ -2,6 +2,8 @@
 
 namespace WPFormsStripe\Admin;
 
+use WPForms\Admin\Notice;
+
 /**
  * Admin notices.
  *
@@ -16,7 +18,8 @@ class Notices {
 	 */
 	public function __construct() {
 
-		\add_action( 'admin_init', array( $this, 'init' ) );
+		add_action( 'admin_init', [ $this, 'init' ] );
+		add_action( 'wpforms_settings_init', [ $this, 'deprecated_api' ] );
 	}
 
 	/**
@@ -26,8 +29,8 @@ class Notices {
 	 */
 	public function init() {
 
-		\add_action( 'admin_notices', array( $this, 'v230_upgrade' ) );
-		\add_action( 'wp_ajax_wpforms_stripe_v230_dismiss', array( $this, 'v230_dismiss' ) );
+		add_action( 'admin_notices', [ $this, 'v230_upgrade' ] );
+		add_action( 'wp_ajax_wpforms_stripe_v230_dismiss', [ $this, 'v230_dismiss' ] );
 	}
 
 	/**
@@ -101,5 +104,74 @@ class Notices {
 		\update_option( 'wpforms_stripe_v230_upgrade', $v230_upgrade );
 
 		\wp_send_json_success();
+	}
+
+	/**
+	 * Notice for deprecated API version.
+	 *
+	 * @since 2.9.0
+	 */
+	public function deprecated_api() {
+
+		$payment_collection_type = absint( wpforms_setting( 'stripe-api-version' ) );
+
+		if ( $payment_collection_type !== 2 ) {
+			return;
+		}
+
+		$message = sprintf(
+			wp_kses( /* translators: %s - Payments settings page URL. */
+				__( 'The WPForms Stripe integration is currently using a deprecated payment collection type that is no longer supported and will stop working in the future.<br> Please <a href="%s">update your payment collection type</a> to continue processing payments successfully.' ),
+				[
+					'br' => [],
+					'a'  => [
+						'href' => [],
+					],
+				]
+			),
+			esc_url( admin_url( 'admin.php?page=wpforms-settings&view=payments#wpforms-setting-row-stripe-api-version' ) )
+		);
+
+		Notice::warning( $message );
+	}
+
+	/**
+	 * Get Fee notice if license is not active.
+	 *
+	 * @since 2.9.0
+	 *
+	 * @return string
+	 */
+	public static function get_fee_notice() {
+
+		$setting_page_url = admin_url( 'admin.php?page=wpforms-settings&view=general' );
+
+		if ( empty( wpforms_get_license_key() ) ) {
+			return sprintf(
+				wp_kses( /* translators: %s - General admin settings page URL. */
+					__( '<strong>Pay as you go pricing:</strong> 3%% fee per-transaction + Stripe fees. <a href="%s">Activate your license</a> to remove additional fees and unlock powerful features.', 'wpforms-stripe' ),
+					[
+						'strong' => [],
+						'a'      => [
+							'href' => [],
+						],
+					]
+				),
+				esc_url( $setting_page_url )
+			);
+		}
+
+		return sprintf(
+			wp_kses( /* translators: %s - General admin settings page URL. */
+				__( '<strong>Pay as you go pricing:</strong> 3%% fee per-transaction + Stripe fees. <a href="%s">Renew your license</a> to remove additional fees and unlock powerful features.', 'wpforms-stripe' ),
+				[
+					'strong' => [],
+					'a'      => [
+						'href' => [],
+					],
+				]
+			),
+			esc_url( $setting_page_url )
+		);
 	}
 }

@@ -1,6 +1,22 @@
 # Change Log
 All notable changes to this project will be documented in this file, formatted via [this recommendation](https://keepachangelog.com/).
 
+## [2.9.0] - 2023-02-02
+### IMPORTANT
+- Support of the legacy way to collect payments is deprecated and is no longer supported. Payments continue to be processed but will stop working in the future. Please upgrade your forms to the new Stripe Credit Card field to avoid disruptions or failed payments.
+
+### Fixed
+- The Credit Card field didn't process validation when navigating between pages in a multi-page form.
+- Subscription amount could be incorrect for zero-decimal currencies.
+- "Enable Stripe payments" prompt didn't work correctly for a restored form.
+
+## [2.8.0] - 2022-10-12
+### Changed
+- Minimum WPForms version supported is 1.7.7.2.
+
+### Fixed
+- Stripe transaction URL for test mode had a wrong format on the Entry details page.
+
 ## [2.7.0] - 2022-10-04
 ### Changed
 - Stripe Credit Card fields are not shown anymore if Stripe Payments are not enabled or Stripe Keys are not set.

@@ -105,7 +105,7 @@ class Settings {
 					'strong' => array(),
 				)
 			),
-			'https://wpforms.com/docs/how-to-update-to-the-stripe-credit-card-field'
+			esc_url( wpforms_utm_link( 'https://wpforms.com/docs/how-to-update-to-the-stripe-credit-card-field', 'Settings - Payments', 'Stripe Documentation' ) )
 		);
 
 		$admin_settings_stripe_l10n['payment_collection_type_modal_legacy'] = \wp_kses(
@@ -174,27 +174,36 @@ class Settings {
 		$settings['payments']['stripe-test-mode']         = array(
 			'id'   => 'stripe-test-mode',
 			'name' => \esc_html__( 'Test Mode', 'wpforms-stripe' ),
-			'desc' => \sprintf(
-				/* translators: %s - WPForms.com URL for Stripe paymen with more details. */
-				\esc_html__( 'Check this option to prevent Stripe from processing live transactions. Please see %1$sour documentation on Stripe test payments for full details%2$s.', 'wpforms-stripe' ),
-				'<a href="https://wpforms.com/docs/how-to-test-stripe-payments-on-your-site/" target="_blank" rel="noopener noreferrer">',
-				'</a>'
+			'desc' => sprintf(
+				wp_kses( /* translators: %s - WPForms.com URL for Stripe payment with more details. */
+					__( 'Check this option to prevent Stripe from processing live transactions. Please see <a href="%s" target="_blank" rel="noopener noreferrer">our documentation on Stripe test payments for full details</a>.', 'wpforms-stripe' ),
+					[
+						'a' => [
+							'href'   => [],
+							'target' => [],
+							'rel'    => [],
+						],
+					]
+				),
+				esc_url( wpforms_utm_link( 'https://wpforms.com/docs/how-to-test-stripe-payments-on-your-site/', 'Settings - Payments', 'Stripe Test Payments Documentation' ) )
 			),
 			'type' => 'checkbox',
 		);
+
 		if ( absint( Helpers::get_api_version() ) === 2 || ! empty( $this->payment_forms['legacy'] ) ) {
-			$settings['payments']['stripe-api-version'] = array(
+			$settings['payments']['stripe-api-version'] = [
 				'id'         => 'stripe-api-version',
-				'name'       => \esc_html__( 'Payment Collection Type', 'wpforms-stripe' ),
+				'name'       => esc_html__( 'Payment Collection Type', 'wpforms-stripe' ),
 				'type'       => 'radio',
 				'default'    => Helpers::has_stripe_keys() ? 2 : 3,
 				'desc_after' => $this->get_payment_collection_type_desc_after(),
-				'options'    => array(
-					3 => \esc_html__( 'Stripe Credit Card Field (Recommended)', 'wpforms-stripe' ),
-					2 => \esc_html__( 'WPForms Credit Card Field (Legacy)', 'wpforms-stripe' ),
-				),
-			);
+				'options'    => [
+					3 => esc_html__( 'Stripe Credit Card Field (Recommended)', 'wpforms-stripe' ),
+					2 => esc_html__( 'WPForms Credit Card Field (Deprecated, Unsupported)', 'wpforms-stripe' ),
+				],
+			];
 		}
+
 		$settings['payments']['stripe-test-publishable-key'] = array(
 			'id'   => 'stripe-test-publishable-key',
 			'name' => \esc_html__( 'Test Publishable Key', 'wpforms-stripe' ),
@@ -243,7 +252,7 @@ class Settings {
 						),
 					)
 				),
-				'https://wpforms.com/docs/how-to-install-and-use-the-stripe-addon-with-wpforms/'
+				esc_url( wpforms_utm_link( 'https://wpforms.com/docs/how-to-install-and-use-the-stripe-addon-with-wpforms/', 'Settings - Payments', 'Stripe Documentation' ) )
 			) .
 			'</p>';
 
@@ -326,6 +335,12 @@ class Settings {
 			'</p>' .
 			'</div>';
 
+		if ( ! Helpers::is_license_active() ) {
+			$output .= '<div class="wpforms-stripe-notice-info">';
+			$output .= '<p>' . Notices::get_fee_notice() . '</p>';
+			$output .= '</div>';
+		}
+
 		$connect_url = \wpforms_stripe()->connect->get_connect_with_stripe_url( $mode );
 
 		$output .= '<p>';
@@ -365,7 +380,7 @@ class Settings {
 						],
 					]
 				),
-				'https://wpforms.com/docs/how-to-install-and-use-the-stripe-addon-with-wpforms/#connect-stripe'
+				esc_url( wpforms_utm_link( 'https://wpforms.com/docs/how-to-install-and-use-the-stripe-addon-with-wpforms/#connect-stripe', 'Settings - Payments', 'Stripe Documentation' ) )
 			) .
 			'</p>' .
 			'</div>';
@@ -390,39 +405,38 @@ class Settings {
 	 */
 	public function get_payment_collection_type_desc_after() {
 
-		$payment_collection_type = \absint( \wpforms_setting( 'stripe-api-version' ) );
-		$display                 = array();
+		$payment_collection_type = absint( wpforms_setting( 'stripe-api-version' ) );
+		$display                 = [];
 
-		$update_notice = \sprintf(
-			\wp_kses(
-				/* translators: %s - WPForms.com Stripe documentation article URL. */
-				\__( 'If you chose to update the payment collection type, the form(s) below will need to be manually updated. <a href="%s" target="_blank" rel="noopener noreferrer">Learn more</a>.', 'wpforms-stripe' ),
-				array(
-					'a' => array(
-						'href'   => array(),
-						'target' => array(),
-						'rel'    => array(),
-					),
-				)
+		$update_notice = sprintf(
+			wp_kses( /* translators: %s - WPForms.com Stripe documentation article URL. */
+				__( '<p>This payment collection type has been deprecated and is no longer supported.</p><p>Payments continue to be processed but will stop working in the future.</p><p>To avoid disruption or failed payments, please upgrade the forms below to the Stripe Credit Card field.</p><p><a target="_blank" rel="noopener noreferrer" href="%s">Learn More</a></p>', 'wpforms-stripe' ),
+				[
+					'p' => [],
+					'a' => [
+						'href'   => [],
+						'target' => [],
+						'rel'    => [],
+					],
+				]
 			),
-			'https://wpforms.com/docs/how-to-update-to-the-stripe-credit-card-field'
+			esc_url( wpforms_utm_link( 'https://wpforms.com/docs/how-to-update-to-the-stripe-credit-card-field', 'Settings - Payments', 'Update to the Stripe Credit Card Field Documentation' ) )
 		);
 
-		$updated_notice = \sprintf(
-			\wp_kses(
-				/* translators: %s - WPForms.com Stripe documentation article URL. */
-				\__( '<strong>IMPORTANT:</strong> The form(s) below need to be manually updated. Payments cannot be processed until the updates are completed. <a href="%s" target="_blank" rel="noopener noreferrer">Learn more</a>.', 'wpforms-stripe' ),
-				array(
-					'strong' => array(),
-					'a'      => array(
-						'href'   => array(),
-						'target' => array(),
-						'rel'    => array(),
-					),
-				)
+		$updated_notice = '<p>' . sprintf(
+			wp_kses( /* translators: %s - WPForms.com Stripe documentation article URL. */
+				__( '<strong>IMPORTANT:</strong> The form(s) below need to be manually updated. Payments cannot be processed until the updates are completed. <a href="%s" target="_blank" rel="noopener noreferrer">Learn more</a>.', 'wpforms-stripe' ),
+				[
+					'strong' => [],
+					'a'      => [
+						'href'   => [],
+						'target' => [],
+						'rel'    => [],
+					],
+				]
 			),
-			'https://wpforms.com/docs/how-to-update-to-the-stripe-credit-card-field'
-		);
+			esc_url( wpforms_utm_link( 'https://wpforms.com/docs/how-to-update-to-the-stripe-credit-card-field', 'Settings - Payments', 'Update to the Stripe Credit Card Field Documentation' ) )
+		) . '</p>';
 
 		if ( 2 === $payment_collection_type && ! empty( $this->payment_forms['legacy'] ) ) {
 			$display['text']  = 'update';
@@ -442,18 +456,18 @@ class Settings {
 			return '';
 		}
 
-		$output  = '<div class="wpforms-' . \esc_attr( $display['text'] ) . '">';
-		$output .= '<p class="desc">';
-		$output .= 'update' === $display['text'] ? $update_notice : $updated_notice;
-		$output .= '</p>';
+		$output  = '<div class="wpforms-' . esc_attr( $display['text'] ) . '">';
+		$output .= $display['text'] === 'update' ? $update_notice : $updated_notice;
 		$output .= '<ul>';
+
 		foreach ( $this->payment_forms[ $display['forms'] ] as $form ) {
-			$output .= \sprintf(
+			$output .= sprintf(
 				'<li><a href="%s" target="_blank">%s</a></li>',
-				\esc_url( \admin_url( 'admin.php?page=wpforms-builder&view=fields&form_id=' . \absint( $form->ID ) ) ),
-				\esc_html( $form->post_title )
+				esc_url( admin_url( 'admin.php?page=wpforms-builder&view=fields&form_id=' . absint( $form->ID ) ) ),
+				esc_html( $form->post_title )
 			);
 		}
+
 		$output .= '</ul>';
 		$output .= '</div>';
 

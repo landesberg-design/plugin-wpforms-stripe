@@ -299,19 +299,22 @@ class Process {
 	 */
 	public function process_payment_single() {
 
-		$currency = strtolower( wpforms_get_currency() );
-
-		$amount_decimals = (int) str_pad( 1, wpforms_get_currency_decimals( $currency ) + 1, 0, STR_PAD_RIGHT );
+		$amount_decimals = $this->get_decimals_amount();
 
 		// Define the basic payment details.
 		$args = [
 			'amount'   => $this->amount * $amount_decimals,
-			'currency' => $currency,
+			'currency' => strtolower( wpforms_get_currency() ),
 			'metadata' => [
-				'form_name' => \sanitize_text_field( $this->form_data['settings']['form_title'] ),
+				'form_name' => sanitize_text_field( $this->form_data['settings']['form_title'] ),
 				'form_id'   => $this->form_id,
 			],
 		];
+
+		// Set fee if a license is not active.
+		if ( ! Helpers::is_license_active() ) {
+			$args['application_fee_amount'] = (int) ( round( $this->amount * 0.03, 2 ) * $amount_decimals );
+		}
 
 		// Payment description.
 		if ( ! empty( $this->settings['payment_description'] ) ) {
@@ -362,13 +365,20 @@ class Process {
 			return;
 		}
 
+		$amount_decimals = $this->get_decimals_amount();
+
 		$args = [
 			'form_id'    => $this->form_id,
-			'form_title' => \sanitize_text_field( $this->form_data['settings']['form_title'] ),
-			'amount'     => $this->amount,
-			'email'      => \sanitize_email( $this->fields[ $this->settings['recurring']['email'] ]['value'] ),
+			'form_title' => sanitize_text_field( $this->form_data['settings']['form_title'] ),
+			'amount'     => $this->amount * $amount_decimals,
+			'email'      => sanitize_email( $this->fields[ $this->settings['recurring']['email'] ]['value'] ),
 			'settings'   => $this->settings['recurring'],
 		];
+
+		// Set fee if a license is not active.
+		if ( ! Helpers::is_license_active() ) {
+			$args['application_fee_percent'] = 3;
+		}
 
 		\wpforms_stripe()->api->process_subscription( $args );
 
@@ -595,5 +605,17 @@ class Process {
 	protected function is_rate_limit_ok() {
 
 		return ( new RateLimit() )->is_ok();
+	}
+
+	/**
+	 * Get decimals amount.
+	 *
+	 * @since 2.9.0
+	 *
+	 * @return int
+	 */
+	private function get_decimals_amount() {
+
+		return (int) str_pad( 1, wpforms_get_currency_decimals( strtolower( wpforms_get_currency() ) ) + 1, 0, STR_PAD_RIGHT );
 	}
 }

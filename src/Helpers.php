@@ -278,4 +278,27 @@ class Helpers {
 
 		return $payment_forms;
 	}
+
+	/**
+	 * Check if license is active and valid.
+	 *
+	 * @since 2.9.0
+	 *
+	 * @return bool
+	 */
+	public static function is_license_active() {
+
+		$license = (array) get_option( 'wpforms_license', [] );
+
+		if (
+			! empty( wpforms_get_license_key() ) &&
+			empty( $license['is_expired'] ) &&
+			empty( $license['is_disabled'] ) &&
+			empty( $license['is_invalid'] )
+		) {
+			return true;
+		}
+
+		return false;
+	}
 }

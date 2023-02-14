@@ -93,13 +93,16 @@ class Frontend {
 			\WPFORMS_STRIPE_VERSION
 		);
 
-		\wp_localize_script(
+		wp_localize_script(
 			'wpforms-stripe',
 			'wpforms_stripe',
-			array(
+			[
 				'publishable_key' => Helpers::get_stripe_key( 'publishable' ),
 				'data'            => $config['localize_script'],
-			)
+				'i18n' => [
+					'empty_details' => esc_html__( 'Please fill out payment details to continue.', 'wpforms-stripe' ),
+				],
+			]
 		);
 	}
 }

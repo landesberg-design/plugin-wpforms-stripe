@@ -21,6 +21,15 @@ var WPFormsStripeElements = window.WPFormsStripeElements || ( function( document
 		stripe: null,
 
 		/**
+		 * Number of page locked to switch.
+		 *
+		 * @since 2.9.0
+		 *
+		 * @type {int}
+		 */
+		lockedPageToSwitch: 0,
+
+		/**
 		 * Start the engine.
 		 *
 		 * @since 2.3.0
@@ -35,6 +44,8 @@ var WPFormsStripeElements = window.WPFormsStripeElements || ( function( document
 			$( document ).on( 'wpformsReady', function() {
 				$( '.wpforms-stripe form' ).each( app.setupStripeForm );
 			} );
+
+			$( document ).on( 'wpformsBeforePageChange', app.pageChange );
 		},
 
 		/**
@@ -308,6 +319,48 @@ var WPFormsStripeElements = window.WPFormsStripeElements || ( function( document
 			$submit.prop( 'disabled', false );
 			$container.css( 'opacity', '' );
 			$spinner.hide();
+		},
+
+		/**
+		 * Callback for a page changing.
+		 *
+		 * @since 2.9.0
+		 *
+		 * @param {Event}  event       Event.
+		 * @param {int}    currentPage Current page.
+		 * @param {jQuery} $form       Current form.
+		 */
+		pageChange: function( event, currentPage, $form ) {
+
+			const $stripeDiv = $form.find( '.wpforms-field-stripe-credit-card-cardnumber' ),
+				ccComplete = $stripeDiv.hasClass( wpforms_stripe.data.element_classes.complete ),
+				ccEmpty = $stripeDiv.hasClass( wpforms_stripe.data.element_classes.empty ),
+				ccInvalid = $stripeDiv.hasClass( wpforms_stripe.data.element_classes.invalid );
+
+			// Stop navigation through page break pages.
+			if (
+				! $stripeDiv.is( ':visible' ) ||
+				( ! $stripeDiv.data( 'required' ) && ccEmpty ) ||
+				( app.lockedPageToSwitch && app.lockedPageToSwitch !== currentPage )
+			) {
+				return;
+			}
+
+			if ( ccComplete ) {
+				$stripeDiv.find( '.wpforms-error' ).remove();
+
+				return;
+			}
+
+			app.lockedPageToSwitch = currentPage;
+
+			event.preventDefault();
+
+			if ( ccInvalid ) {
+				return;
+			}
+
+			app.displayStripeError( $form, wpforms_stripe.i18n.empty_details );
 		},
 	};
 
