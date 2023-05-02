@@ -1,12 +1,12 @@
-/* global Stripe, wpforms, wpforms_settings, wpforms_stripe */
+/* global Stripe, wpforms, wpforms_settings, wpforms_stripe, WPForms */
+
+'use strict';
 
 /**
  * WPForms Stripe Elements function.
  *
  * @since 2.3.0
-*/
-'use strict';
-
+ */
 var WPFormsStripeElements = window.WPFormsStripeElements || ( function( document, window, $ ) {
 
 	/**
@@ -60,10 +60,11 @@ var WPFormsStripeElements = window.WPFormsStripeElements || ( function( document
 			app.updateFormSubmitHandler( $form );
 
 			$form.on( 'wpformsAjaxSubmitActionRequired', app.handleCardActionCallback );
+
+			app.updateCardElementStylesModern( $form );
 		},
 
 		/**
-		 *
 		 * Setup, mount and configure Stripe Card Element.
 		 *
 		 * @since 2.3.0
@@ -71,11 +72,21 @@ var WPFormsStripeElements = window.WPFormsStripeElements || ( function( document
 		 * @param {jQuery} $form Form element.
 		 * @param {object} formValidator jQuery Validator object.
 		 *
-		 * @returns {card} Stripe Card element.
+		 * @returns {card|void} Stripe Card element.
 		 */
 		setupCardElement: function( $form, formValidator ) {
 
-			var $hiddenInput = $form.find( '.wpforms-stripe-credit-card-hidden-input' );
+			const $hiddenInput = $form.find( '.wpforms-stripe-credit-card-hidden-input' );
+
+			if ( ! $hiddenInput || $hiddenInput.length === 0 ) {
+				return;
+			}
+
+			let cardElement =  $hiddenInput.data( 'stripe-element' );
+
+			if ( cardElement ) {
+				return cardElement;
+			}
 
 			var style = wpforms_stripe.data.element_style;
 
@@ -89,7 +100,7 @@ var WPFormsStripeElements = window.WPFormsStripeElements || ( function( document
 				style         : style,
 			};
 
-			var cardElement = app.stripe.elements().create( 'card', cardSettings );
+			cardElement = app.stripe.elements().create( 'card', cardSettings );
 
 			cardElement.mount( $form.find( '.wpforms-field-stripe-credit-card-cardnumber' ).get( 0 ) );
 
@@ -115,27 +126,36 @@ var WPFormsStripeElements = window.WPFormsStripeElements || ( function( document
 		},
 
 		/**
-		 *
 		 * Get default styles for card settings.
 		 *
 		 * @since 2.5.0
 		 *
 		 * @param {jQuery} $hiddenInput Input element.
 		 *
-		 * @returns {object} Base styles.
+		 * @returns {object|void} Base styles.
 		 */
 		getElementStyleDefault: function( $hiddenInput ) {
 
-			var style = {
+			if ( ! $hiddenInput || $hiddenInput.length === 0 ) {
+				return;
+			}
+
+			const textColor = $hiddenInput.css( 'color' );
+			const fontSize = $hiddenInput.css( 'font-size' );
+
+			let style = {
 				base: {
-					fontSize  : $hiddenInput.css( 'font-size' ),
-					color     : $hiddenInput.css( 'color' ),
+					fontSize : fontSize,
+					color    : textColor,
+					'::placeholder' : {
+						fontSize : fontSize,
+					},
 				},
 			};
 
-			var fontFamily = $hiddenInput.css( 'font-family' );
+			let fontFamily = $hiddenInput.css( 'font-family' );
 
-			var regExp = /[“”<>!@$%^&*=~`|{}[\]]/;
+			const regExp = /[“”<>!@$%^&*=~`|{}[\]]/;
 
 			if ( regExp.test( fontFamily ) || fontFamily.indexOf( 'MS Shell Dlg' ) !== -1 ) {
 				fontFamily = $( 'p' ).css( 'font-family' );
@@ -143,6 +163,7 @@ var WPFormsStripeElements = window.WPFormsStripeElements || ( function( document
 
 			if ( ! regExp.test( fontFamily ) ) {
 				style.base.fontFamily = fontFamily;
+				style.base['::placeholder'].fontFamily = fontFamily;
 			}
 
 			return style;
@@ -199,9 +220,9 @@ var WPFormsStripeElements = window.WPFormsStripeElements || ( function( document
 		 *
 		 * @since 2.3.0
 		 *
-		 * @param {jQuery} $form Form element.
-		 * @param {card} cardElement Stripe Card element.
-		 * @param {boolean} ccRequired Card field is required.
+		 * @param {jQuery}   $form             Form element.
+		 * @param {card}     cardElement       Stripe Card element.
+		 * @param {boolean}  ccRequired        Card field is required.
 		 * @param {Function} formSubmitHandler jQuery Validation SubmitHandler function.
 		 */
 		createPaymentMethod: function( $form, cardElement, ccRequired, formSubmitHandler ) {
@@ -290,12 +311,15 @@ var WPFormsStripeElements = window.WPFormsStripeElements || ( function( document
 		 */
 		displayStripeError: function( $form, message ) {
 
-			var fieldName = $form.find( '.wpforms-stripe-credit-card-hidden-input' ).attr( 'name' );
-			var errors = {};
+			const fieldName = $form.find( '.wpforms-stripe-credit-card-hidden-input' ).attr( 'name' ),
+				$stripeDiv = $form.find( '.wpforms-field-stripe-credit-card-cardnumber' );
+			let errors = {};
 
 			errors[fieldName] = message;
 
 			wpforms.displayFormAjaxFieldErrors( $form, errors );
+
+			wpforms.scrollToError( $stripeDiv );
 		},
 
 		/**
@@ -329,8 +353,9 @@ var WPFormsStripeElements = window.WPFormsStripeElements || ( function( document
 		 * @param {Event}  event       Event.
 		 * @param {int}    currentPage Current page.
 		 * @param {jQuery} $form       Current form.
+		 * @param {string} action      The navigation action.
 		 */
-		pageChange: function( event, currentPage, $form ) {
+		pageChange: function( event, currentPage, $form, action ) {
 
 			const $stripeDiv = $form.find( '.wpforms-field-stripe-credit-card-cardnumber' ),
 				ccComplete = $stripeDiv.hasClass( wpforms_stripe.data.element_classes.complete ),
@@ -341,7 +366,8 @@ var WPFormsStripeElements = window.WPFormsStripeElements || ( function( document
 			if (
 				! $stripeDiv.is( ':visible' ) ||
 				( ! $stripeDiv.data( 'required' ) && ccEmpty ) ||
-				( app.lockedPageToSwitch && app.lockedPageToSwitch !== currentPage )
+				( app.lockedPageToSwitch && app.lockedPageToSwitch !== currentPage ) ||
+				action === 'prev'
 			) {
 				return;
 			}
@@ -361,6 +387,53 @@ var WPFormsStripeElements = window.WPFormsStripeElements || ( function( document
 			}
 
 			app.displayStripeError( $form, wpforms_stripe.i18n.empty_details );
+		},
+
+		/**
+		 * Update Card Element styles in Modern Markup mode.
+		 *
+		 * @since 2.11.0
+		 *
+		 * @param {jQuery} $form Form object.
+		 */
+		updateCardElementStylesModern: function( $form ) {
+
+			// Should work only in Modern Markup mode.
+			if ( ! window.WPForms || ! WPForms.FrontendModern ) {
+				return;
+			}
+
+			if ( ! $form || $form.length === 0 ) {
+				return;
+			}
+
+			let cssVars = WPForms.FrontendModern.getCssVars( $form );
+
+			$form.find( '.wpforms-stripe-credit-card-hidden-input' ).each( function() {
+
+				const $hiddenInput = $( this );
+				const cardElement = $hiddenInput.data( 'stripe-element' );
+
+				if ( ! cardElement ) {
+					return;
+				}
+
+				const styles = {
+					base : {
+						color: cssVars['field-text-color'],
+						fontSize: cssVars['field-size-font-size'],
+						'::placeholder': {
+							color: WPForms.FrontendModern.getColorWithOpacity( cssVars['field-text-color'], '0.5' ),
+							fontSize: cssVars['field-size-font-size'],
+						},
+					},
+					invalid: {
+						color: cssVars['field-text-color'],
+					},
+				};
+
+				cardElement.update( { style: styles } );
+			} );
 		},
 	};
 

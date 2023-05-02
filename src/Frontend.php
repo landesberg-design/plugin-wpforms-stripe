@@ -10,6 +10,15 @@ namespace WPFormsStripe;
 class Frontend {
 
 	/**
+	 * Handle name for wp_register_styles handle.
+	 *
+	 * @since 2.11.0
+	 *
+	 * @var string
+	 */
+	const HANDLE = 'wpforms-stripe';
+
+	/**
 	 * Constructor.
 	 *
 	 * @since 2.0.0
@@ -26,8 +35,20 @@ class Frontend {
 	 */
 	public function init() {
 
-		\add_action( 'wpforms_frontend_container_class', array( $this, 'form_container_class' ), 10, 2 );
-		\add_action( 'wpforms_wp_footer', array( $this, 'enqueues' ) );
+		$this->hooks();
+	}
+
+	/**
+	 * Hooks.
+	 *
+	 * @since 2.10.0
+	 */
+	private function hooks() {
+
+		add_action( 'wpforms_frontend_container_class', [ $this, 'form_container_class' ], 10, 2 );
+		add_action( 'wpforms_wp_footer', [ $this, 'enqueues' ] );
+		add_action( 'enqueue_block_editor_assets', [ $this, 'enqueue_assets' ] );
+		add_filter( 'register_block_type_args', [ $this, 'register_block_type_args' ], 20, 2 );
 	}
 
 	/**
@@ -78,31 +99,87 @@ class Frontend {
 			return;
 		}
 
-		$config = \wpforms_stripe()->api->get_config();
+		$this->enqueue_assets();
+	}
 
-		\wp_enqueue_script(
+	/**
+	 * Enqueue assets on the frontend.
+	 *
+	 * @since 2.11.0
+	 */
+	public function enqueue_assets() {
+
+		$config = wpforms_stripe()->api->get_config();
+		$min    = wpforms_get_min_suffix();
+
+		wp_enqueue_script(
 			'stripe-js',
 			$config['remote_js_url'],
-			array( 'jquery' )
+			[ 'jquery' ]
 		);
 
-		\wp_enqueue_script(
-			'wpforms-stripe',
+		wp_enqueue_script(
+			self::HANDLE,
 			$config['local_js_url'],
-			array( 'jquery', 'stripe-js' ),
-			\WPFORMS_STRIPE_VERSION
+			[ 'jquery', 'stripe-js' ],
+			WPFORMS_STRIPE_VERSION
+		);
+
+		wp_enqueue_style(
+			self::HANDLE,
+			WPFORMS_STRIPE_URL . "assets/css/wpforms-stripe{$min}.css",
+			[],
+			WPFORMS_STRIPE_VERSION
 		);
 
 		wp_localize_script(
-			'wpforms-stripe',
+			self::HANDLE,
 			'wpforms_stripe',
 			[
 				'publishable_key' => Helpers::get_stripe_key( 'publishable' ),
 				'data'            => $config['localize_script'],
-				'i18n' => [
+				'i18n'            => [
 					'empty_details' => esc_html__( 'Please fill out payment details to continue.', 'wpforms-stripe' ),
 				],
 			]
 		);
+
+		if ( isset( $config['local_css_url'] ) ) {
+			wp_enqueue_style(
+				'wpforms-stripe',
+				$config['local_css_url'],
+				[],
+				WPFORMS_STRIPE_VERSION
+			);
+		}
+	}
+
+	/**
+	 * Set editor style for block type editor.
+	 *
+	 * @since 2.11.0
+	 *
+	 * @param array  $args       Array of arguments for registering a block type.
+	 * @param string $block_type Block type name including namespace.
+	 */
+	public function register_block_type_args( $args, $block_type ) {
+
+		if ( $block_type !== 'wpforms/form-selector' ) {
+			return $args;
+		}
+
+		$min = wpforms_get_min_suffix();
+
+		// CSS.
+		wp_register_style(
+			self::HANDLE,
+			WPFORMS_STRIPE_URL . "assets/css/wpforms-stripe{$min}.css",
+			[ $args['editor_style'] ],
+			WPFORMS_STRIPE_VERSION
+		);
+
+		$args['editor_style'] = self::HANDLE;
+
+		return $args;
 	}
 }

@@ -172,6 +172,24 @@ class Builder {
 			]
 		);
 
+		if ( ! Helpers::is_legacy_api_version() ) {
+
+			wpforms_panel_field(
+				'select',
+				'stripe',
+				'customer_email',
+				$form_data,
+				esc_html__( 'Customer Email', 'wpforms-stripe' ),
+				[
+					'parent'      => 'payments',
+					'field_map'   => [ 'email' ],
+					'placeholder' => esc_html__( '--- Select Email ---', 'wpforms-stripe' ),
+					'tooltip'     => esc_html__( 'Select the field that contains the customer\'s email address. This is optional but recommended.', 'wpforms-stripe' ),
+				]
+			);
+
+		}
+
 		wpforms_conditional_logic()->builder_block(
 			[
 				'form'        => $form_data,

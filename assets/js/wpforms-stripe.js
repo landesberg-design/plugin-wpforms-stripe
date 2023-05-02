@@ -4,7 +4,7 @@
  * WPForms Stripe function.
  *
  * @since 1.2.0
-*/
+ */
 'use strict';
 
 var WPFormsStripe = window.WPFormsStripe || ( function( document, window, $ ) {
@@ -14,7 +14,7 @@ var WPFormsStripe = window.WPFormsStripe || ( function( document, window, $ ) {
 	 *
 	 * @since 1.2.0
 	 *
-	 * @type {Object}
+	 * @type {object}
 	 */
 	var app = {
 

@@ -158,22 +158,22 @@ class Settings {
 	 */
 	public function register( $settings ) {
 
-		$settings['payments']['stripe-heading']           = array(
+		$settings['payments']['stripe-heading']           = [
 			'id'       => 'stripe-heading',
 			'content'  => $this->get_heading_content(),
 			'type'     => 'content',
 			'no_label' => true,
-			'class'    => array( 'section-heading' ),
-		);
-		$settings['payments']['stripe-connection-status'] = array(
+			'class'    => [ 'section-heading' ],
+		];
+		$settings['payments']['stripe-connection-status'] = [
 			'id'      => 'stripe-connection-status',
-			'name'    => \esc_html__( 'Connection Status', 'wpforms-stripe' ),
+			'name'    => esc_html__( 'Connection Status', 'wpforms-stripe' ),
 			'content' => $this->get_connection_status_content(),
 			'type'    => 'content',
-		);
-		$settings['payments']['stripe-test-mode']         = array(
+		];
+		$settings['payments']['stripe-test-mode']         = [
 			'id'   => 'stripe-test-mode',
-			'name' => \esc_html__( 'Test Mode', 'wpforms-stripe' ),
+			'name' => esc_html__( 'Test Mode', 'wpforms-stripe' ),
 			'desc' => sprintf(
 				wp_kses( /* translators: %s - WPForms.com URL for Stripe payment with more details. */
 					__( 'Check this option to prevent Stripe from processing live transactions. Please see <a href="%s" target="_blank" rel="noopener noreferrer">our documentation on Stripe test payments for full details</a>.', 'wpforms-stripe' ),
@@ -185,12 +185,16 @@ class Settings {
 						],
 					]
 				),
-				esc_url( wpforms_utm_link( 'https://wpforms.com/docs/how-to-test-stripe-payments-on-your-site/', 'Settings - Payments', 'Stripe Test Payments Documentation' ) )
+				esc_url( wpforms_utm_link( 'https://wpforms.com/docs/how-to-test-stripe-payments-on-your-site/', 'Settings - Payments', 'Stripe Test Documentation' ) )
 			),
 			'type' => 'checkbox',
-		);
+		];
 
-		if ( absint( Helpers::get_api_version() ) === 2 || ! empty( $this->payment_forms['legacy'] ) ) {
+		$is_legacy_api    = Helpers::is_legacy_api_version();
+		$has_legacy_forms = ! empty( $this->payment_forms['legacy'] );
+
+		if ( $is_legacy_api || $has_legacy_forms ) {
+
 			$settings['payments']['stripe-api-version'] = [
 				'id'         => 'stripe-api-version',
 				'name'       => esc_html__( 'Payment Collection Type', 'wpforms-stripe' ),
@@ -204,26 +208,41 @@ class Settings {
 			];
 		}
 
-		$settings['payments']['stripe-test-publishable-key'] = array(
+		if ( ( ! $is_legacy_api && ! $has_legacy_forms ) || Helpers::is_payment_element_enabled() ) {
+
+			$settings['payments']['stripe-card-mode'] = [
+				'id'         => 'stripe-card-mode',
+				'name'       => esc_html__( 'Credit Card Field Mode', 'wpforms-stripe' ),
+				'type'       => 'radio',
+				'default'    => wpforms_stripe()->connect->get_connected_user_id() ? 'card' : 'payment',
+				'desc_after' => $this->get_credit_card_field_desc_after(),
+				'options'    => [
+					'card'    => esc_html__( 'Card Element', 'wpforms-stripe' ),
+					'payment' => esc_html__( 'Payment Element', 'wpforms-stripe' ),
+				],
+			];
+		}
+
+		$settings['payments']['stripe-test-publishable-key'] = [
 			'id'   => 'stripe-test-publishable-key',
-			'name' => \esc_html__( 'Test Publishable Key', 'wpforms-stripe' ),
+			'name' => esc_html__( 'Test Publishable Key', 'wpforms-stripe' ),
 			'type' => 'text',
-		);
-		$settings['payments']['stripe-test-secret-key']      = array(
+		];
+		$settings['payments']['stripe-test-secret-key']      = [
 			'id'   => 'stripe-test-secret-key',
-			'name' => \esc_html__( 'Test Secret Key', 'wpforms-stripe' ),
+			'name' => esc_html__( 'Test Secret Key', 'wpforms-stripe' ),
 			'type' => 'text',
-		);
-		$settings['payments']['stripe-live-publishable-key'] = array(
+		];
+		$settings['payments']['stripe-live-publishable-key'] = [
 			'id'   => 'stripe-live-publishable-key',
-			'name' => \esc_html__( 'Live Publishable Key', 'wpforms-stripe' ),
+			'name' => esc_html__( 'Live Publishable Key', 'wpforms-stripe' ),
 			'type' => 'text',
-		);
-		$settings['payments']['stripe-live-secret-key']      = array(
+		];
+		$settings['payments']['stripe-live-secret-key']      = [
 			'id'   => 'stripe-live-secret-key',
-			'name' => \esc_html__( 'Live Secret Key', 'wpforms-stripe' ),
+			'name' => esc_html__( 'Live Secret Key', 'wpforms-stripe' ),
 			'type' => 'text',
-		);
+		];
 
 		return $settings;
 	}
@@ -380,7 +399,7 @@ class Settings {
 						],
 					]
 				),
-				esc_url( wpforms_utm_link( 'https://wpforms.com/docs/how-to-install-and-use-the-stripe-addon-with-wpforms/#connect-stripe', 'Settings - Payments', 'Stripe Documentation' ) )
+				esc_url( wpforms_utm_link( 'https://wpforms.com/docs/how-to-install-and-use-the-stripe-addon-with-wpforms/#connect-stripe', 'Settings - Payments', 'Stripe Learn More' ) )
 			) .
 			'</p>' .
 			'</div>';
@@ -472,6 +491,30 @@ class Settings {
 		$output .= '</div>';
 
 		return $output;
+	}
+
+	/**
+	 * Credit Card mode description.
+	 *
+	 * @since 2.10.0
+	 *
+	 * @return string
+	 */
+	private function get_credit_card_field_desc_after() {
+
+		return '<p class="desc">' . sprintf(
+			wp_kses( /* translators: %s - WPForms.com Stripe documentation article URL. */
+				__( 'Please see <a href="%s" target="_blank" rel="noopener noreferrer">our documentation on Stripe Credit Card field modes for full details</a>.', 'wpforms-stripe' ),
+				[
+					'a' => [
+						'href'   => [],
+						'target' => [],
+						'rel'    => [],
+					],
+				]
+			),
+			esc_url( wpforms_utm_link( 'https://wpforms.com/docs/how-to-install-and-use-the-stripe-addon-with-wpforms/#field-modes', 'Settings - Payments', 'Stripe Field Modes' ) )
+		) . '</p>';
 	}
 
 	/**

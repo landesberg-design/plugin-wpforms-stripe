@@ -98,6 +98,8 @@ class Charges extends Common implements ApiInterface {
 
 		$args = \wp_parse_args( $args, $defaults );
 
+		unset( $args['customer_email'] );
+
 		try {
 			$this->charge = \Stripe\Charge::create( $args, Helpers::get_auth_opts() );
 		} catch ( \Exception $e ) {

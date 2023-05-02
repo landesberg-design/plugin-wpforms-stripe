@@ -89,7 +89,7 @@ class Process {
 	public function process_entry( $fields, $entry, $form_data ) {
 
 		// Check if payment method exists and is enabled.
-		if ( empty( $form_data['payments']['stripe']['enable'] ) ) {
+		if ( ! Helpers::has_stripe_enabled( [ $form_data ] ) ) {
 			return;
 		}
 
@@ -146,17 +146,19 @@ class Process {
 	 * @param array  $form_data Form data and settings.
 	 * @param string $entry_id  Entry ID.
 	 */
-	public function process_entry_meta( $fields, $entry, $form_data, $entry_id ) {
+	public function process_entry_meta( $fields, $entry, $form_data, $entry_id ) { // phpcs:ignore Generic.Metrics.CyclomaticComplexity.TooHigh
 
-		$payment = \wpforms_stripe()->api->get_payment();
+		$payment = wpforms_stripe()->api->get_payment();
 
 		if ( empty( $payment->id ) || empty( $entry_id ) ) {
 			return;
 		}
 
-		$customer     = \wpforms_stripe()->api->get_customer();
-		$subscription = \wpforms_stripe()->api->get_subscription();
-		$payment_data = [
+		$customer       = wpforms_stripe()->api->get_customer();
+		$subscription   = wpforms_stripe()->api->get_subscription();
+		$charge_details = wpforms_stripe()->api->get_charge_details( [ 'type' ] );
+		$payment_type   = ! empty( $charge_details['type'] ) ? $charge_details['type'] : __( 'Card', 'wpforms-stripe' );
+		$payment_data   = [
 			'payment_type'         => 'stripe',
 			'payment_total'        => $this->amount,
 			'payment_currency'     => wpforms_get_currency(),
@@ -165,37 +167,51 @@ class Process {
 			'payment_subscription' => ! empty( $subscription->id ) ? sanitize_text_field( $subscription->id ) : '',
 			'payment_customer'     => ! empty( $customer->id ) ? sanitize_text_field( $customer->id ) : '',
 			'payment_period'       => ! empty( $subscription->id ) ? sanitize_text_field( $this->settings['recurring']['period'] ) : '',
+			'payment_note'         => esc_html__( 'Payment Source: ', 'wpforms-stripe' ) . esc_html( ucfirst( $payment_type ) ),
 		];
 
-		\wpforms()->entry->update(
+		wpforms()->get( 'entry' )->update(
 			$entry_id,
-			array(
+			[
 				'status' => 'completed',
 				'type'   => 'payment',
 				'meta'   => wp_json_encode( $payment_data ),
-			),
+			],
 			'',
 			'',
-			array( 'cap' => false )
+			[ 'cap' => false ]
 		);
 
 		// Insert payment data into entry_meta table.
 		wpforms()->get( 'entry' )->insert_payment_meta( $entry_id, $payment_data );
 
-		// Update the Stripe charge meta data to include the Entry ID.
+		// Update the Stripe charge metadata to include the Entry ID.
 		$payment->metadata['entry_id']  = $entry_id;
-		$payment->metadata['entry_url'] = \esc_url_raw( \admin_url( 'admin.php?page=wpforms-entries&view=details&entry_id=' . $entry_id ) );
+		$payment->metadata['entry_url'] = esc_url_raw( admin_url( 'admin.php?page=wpforms-entries&view=details&entry_id=' . $entry_id ) );
+
 		$payment->save();
 
-		// Update the Stripe subscription meta data to include the Entry ID.
+		// Update the Stripe subscription metadata to include the Entry ID.
 		if ( ! empty( $subscription->id ) ) {
 			$subscription->metadata['entry_id']  = $entry_id;
-			$subscription->metadata['entry_url'] = \esc_url_raw( \admin_url( 'admin.php?page=wpforms-entries&view=details&entry_id=' . $entry_id ) );
+			$subscription->metadata['entry_url'] = esc_url_raw( admin_url( 'admin.php?page=wpforms-entries&view=details&entry_id=' . $entry_id ) );
+
 			$subscription->save();
 		}
 
-		// Processing complete.
-		\do_action( 'wpforms_stripe_process_complete', $fields, $form_data, $entry_id, $payment, $subscription, $customer );
+		/**
+		 * This action fires when processing is complete.
+		 *
+		 * @since 2.0.0
+		 *
+		 * @param array  $fields       Final/sanitized submitted field data.
+		 * @param array  $form_data    Form data and settings.
+		 * @param string $entry_id     Entry ID.
+		 * @param mixed  $payment      Stripe payment object.
+		 * @param mixed  $subscription Stripe subscription object.
+		 * @param mixed  $customer     Stripe customer object.
+		 */
+		do_action( 'wpforms_stripe_process_complete', $fields, $form_data, $entry_id, $payment, $subscription, $customer ); // phpcs:ignore WPForms.PHP.ValidateHooks.InvalidHookName
 	}
 
 	/**
@@ -216,7 +232,7 @@ class Process {
 			return false;
 		}
 
-		if ( empty( $form_data['payments']['stripe']['enable'] ) ) {
+		if ( ! Helpers::has_stripe_enabled( [ $form_data ] ) ) {
 			return $process;
 		}
 
@@ -318,15 +334,20 @@ class Process {
 
 		// Payment description.
 		if ( ! empty( $this->settings['payment_description'] ) ) {
-			$args['description'] = \html_entity_decode( $this->settings['payment_description'], ENT_COMPAT, 'UTF-8' );
+			$args['description'] = html_entity_decode( $this->settings['payment_description'], ENT_COMPAT, 'UTF-8' );
 		}
 
 		// Receipt email.
 		if ( ! empty( $this->settings['receipt_email'] ) && ! empty( $this->fields[ $this->settings['receipt_email'] ]['value'] ) ) {
-			$args['receipt_email'] = \sanitize_email( $this->fields[ $this->settings['receipt_email'] ]['value'] );
+			$args['receipt_email'] = sanitize_email( $this->fields[ $this->settings['receipt_email'] ]['value'] );
 		}
 
-		\wpforms_stripe()->api->process_single( $args );
+		// Customer email.
+		if ( ! empty( $this->settings['customer_email'] ) && ! empty( $this->fields[ $this->settings['customer_email'] ]['value'] ) ) {
+			$args['customer_email'] = sanitize_email( $this->fields[ $this->settings['customer_email'] ]['value'] );
+		}
+
+		wpforms_stripe()->api->process_single( $args );
 
 		$this->update_credit_card_field_value();
 
@@ -397,27 +418,31 @@ class Process {
 
 		foreach ( $this->fields as $field_id => $field ) {
 
-			if ( \wpforms_stripe()->api->get_config( 'field_slug' ) !== $field['type'] ) {
+			if ( wpforms_stripe()->api->get_config( 'field_slug' ) !== $field['type'] ) {
 				continue;
 			}
 
-			$details = \wpforms_stripe()->api->get_charge_details( array( 'name', 'last4', 'brand' ) );
+			$details = wpforms_stripe()->api->get_charge_details( [ 'name', 'last4', 'brand' ] );
 
 			if ( ! empty( $details['last4'] ) ) {
 				$details['last4'] = 'XXXXXXXXXXXX' . $details['last4'];
 			}
 
 			if ( ! empty( $details['brand'] ) ) {
-				$details['brand'] = \ucfirst( $details['brand'] );
+				$details['brand'] = ucfirst( $details['brand'] );
 			}
 
-			$details = \is_array( $details ) && ! empty( $details ) ? \implode( "\n", \array_filter( $details ) ) : '';
+			$details = is_array( $details ) && ! empty( $details ) ? implode( "\n", array_filter( $details ) ) : '-';
 
-			\wpforms()->process->fields[ $field_id ]['value'] = \apply_filters(
-				'wpforms_stripe_creditcard_value',
-				$details,
-				\wpforms_stripe()->api->get_payment()
-			);
+			/**
+			 * This filter allows to overwrite a Style Credit Card value in saved entry.
+			 *
+			 * @since 2.0.0
+			 *
+			 * @param array  $details Card details.
+			 * @param object $payment Stripe payment objects.
+			 */
+			wpforms()->get( 'process' )->fields[ $field_id ]['value'] = apply_filters( 'wpforms_stripe_creditcard_value', $details, wpforms_stripe()->api->get_payment() ); // phpcs:ignore WPForms.PHP.ValidateHooks.InvalidHookName
 		}
 	}
 

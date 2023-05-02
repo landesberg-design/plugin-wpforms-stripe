@@ -1,6 +1,32 @@
 # Change Log
 All notable changes to this project will be documented in this file, formatted via [this recommendation](https://keepachangelog.com/).
 
+## [2.11.0] - 2023-03-23
+### Added
+- Compatibility of Stripe Payment Element with the upcoming WPForms 1.8.1.
+
+### Changed
+- Improved compatibility with Lead Forms addon.
+
+### Fixed
+- Form was not scrolled to the CC Number, Date and CVV fields if validation for these fields failed.
+- Stripe Credit Card with Payment Elements worked for a first payment form only, even though there was more than one form on the same page.
+- Fields for verification code were not visible for Stripe Element with Link.
+- Placeholders and labels were overlapped for Stripe Element field after page refresh with multipage form.
+- Payment Element in Conversational Form was not set up properly on field activation.
+
+## [2.10.0] - 2023-02-28
+### Added
+- Compatibility with the upcoming WPForms 1.8.1.
+- Stripe Payment Element and Payment Links are supported now!
+
+### Changed
+- Minimum WPForms version supported is 1.8.0.2.
+
+### Fixed
+- The previous page on the multi-page form could not be opened without filling in the Credit Card Number field.
+- Under certain circumstances, a PHP notice was raised when a payment form was submitted.
+
 ## [2.9.0] - 2023-02-02
 ### IMPORTANT
 - Support of the legacy way to collect payments is deprecated and is no longer supported. Payments continue to be processed but will stop working in the future. Please upgrade your forms to the new Stripe Credit Card field to avoid disruptions or failed payments.

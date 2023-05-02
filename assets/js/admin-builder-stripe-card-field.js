@@ -39,9 +39,12 @@ var WPFormsStripeCardField = window.WPFormsStripeCardField || ( function( docume
 			$( document ).on( 'wpformsSaved', app.paymentsEnabledCheck );
 
 			$( document ).on( 'click', '#wpforms-add-fields-' + wpforms_builder_stripe_card_field.field_slug, app.stripeKeysCheck );
+			$( document ).on( 'change', '.wpforms-field-option-stripe-credit-card .wpforms-field-option-row-sublabel_position select', app.sublabelPositionChange );
+			$( document ).on( 'change', '.wpforms-field-option-stripe-credit-card .wpforms-field-option-row-link_email select', app.linkEmailChange );
 
 			$( document ).on( 'wpformsFieldAdd', app.disableAddCardButton );
 			$( document ).on( 'wpformsFieldDelete', app.enableAddCardButton );
+			$( document ).on( 'wpformsFieldDelete', app.maybeResetLinkEmailField );
 		},
 
 		/**
@@ -156,6 +159,51 @@ var WPFormsStripeCardField = window.WPFormsStripeCardField || ( function( docume
 				$( '#wpforms-add-fields-' + wpforms_builder_stripe_card_field.field_slug )
 					.prop( 'disabled', false );
 			}
+		},
+
+		/**
+		 * Switch sublabels preview mode.
+		 *
+		 * @since 2.10.0
+		 */
+		sublabelPositionChange: function() {
+
+			const fieldId = $( this ).parent().data( 'field-id' ),
+				$fieldPreview = $( `#wpforms-field-${fieldId}` ).find( '.wpforms-stripe-payment-element' );
+
+			$fieldPreview.toggleClass( 'above' );
+			$fieldPreview.toggleClass( 'floating' );
+			$fieldPreview.find( 'select' ).val( $fieldPreview.hasClass( 'above' ) ? 'empty' : 'country' );
+		},
+
+		/**
+		 * Switch Link Email Field mapping.
+		 *
+		 * @since 2.10.0
+		 */
+		linkEmailChange: function() {
+
+			const fieldId = $( this ).parent().data( 'field-id' );
+
+			$( `#wpforms-field-${fieldId}` ).find( '.wpforms-stripe-link-email' ).toggleClass( 'wpforms-hidden', $( this ).val() !== '' );
+		},
+
+		/**
+		 * Maybe reset link email field if mapped email was removed.
+		 *
+		 * @since 2.10.0
+		 *
+		 * @param {object} e Event object.
+		 * @param {number} id Field ID.
+		 * @param {string} type Field type.
+		 */
+		maybeResetLinkEmailField: function( e, id, type ) {
+
+			if ( type !== 'email' ) {
+				return;
+			}
+
+			$( '.wpforms-field-option-stripe-credit-card .wpforms-field-option-row-link_email select' ).trigger( 'change' );
 		},
 	};
 

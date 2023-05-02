@@ -31,19 +31,18 @@ class Helpers {
 	 * @since 2.3.0
 	 *
 	 * @param array $forms Form data (e.g. forms on a current page).
+	 *
+	 * @return bool
 	 */
 	public static function has_stripe_enabled( $forms ) {
 
-		$stripe_enabled = false;
-
 		foreach ( $forms as $form ) {
 			if ( ! empty( $form['payments']['stripe']['enable'] ) ) {
-				$stripe_enabled = true;
-				break;
+				return true;
 			}
 		}
 
-		return $stripe_enabled;
+		return false;
 	}
 
 	/**
@@ -277,6 +276,30 @@ class Helpers {
 		}
 
 		return $payment_forms;
+	}
+
+	/**
+	 * Determine if Payment element mode is enabled and valid.
+	 *
+	 * @since 2.10.0
+	 *
+	 * @return bool
+	 */
+	public static function is_payment_element_enabled() {
+
+		return wpforms_setting( 'stripe-card-mode' ) === 'payment' && ! self::is_legacy_api_version();
+	}
+
+	/**
+	 * Determine if Legacy API version is used.
+	 *
+	 * @since 2.10.0
+	 *
+	 * @return bool
+	 */
+	public static function is_legacy_api_version() {
+
+		return absint( self::get_api_version() ) === 2;
 	}
 
 	/**
