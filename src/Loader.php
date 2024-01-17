@@ -2,6 +2,10 @@
 
 namespace WPFormsStripe;
 
+use WPForms\Integrations\Stripe\Admin\Connect;
+use WPForms\Integrations\Stripe\Api\ApiInterface;
+use WPForms\Integrations\Stripe\Frontend;
+use WPForms_Updater;
 use WPFormsStripe\Migrations\Migrations;
 
 /**
@@ -12,20 +16,11 @@ use WPFormsStripe\Migrations\Migrations;
 final class Loader {
 
 	/**
-	 * Have the only available instance of the class.
-	 *
-	 * @since 2.0.0
-	 *
-	 * @var Loader
-	 */
-	private static $instance;
-
-	/**
 	 * Payment API.
 	 *
 	 * @since 2.3.0
 	 *
-	 * @var API\ApiInterface
+	 * @var ApiInterface
 	 */
 	public $api;
 
@@ -34,7 +29,7 @@ final class Loader {
 	 *
 	 * @since 2.3.0
 	 *
-	 * @var Admin\Connect
+	 * @var Connect
 	 */
 	public $connect;
 
@@ -74,32 +69,28 @@ final class Loader {
 	 */
 	public static function get_instance() {
 
-		if ( ! isset( self::$instance ) && ! ( self::$instance instanceof self ) ) {
-			self::$instance = new Loader();
+		static $instance;
+
+		if ( ! $instance ) {
+			$instance = new self();
+
+			$instance->init();
 		}
 
-		return self::$instance;
-	}
-
-	/**
-	 * Loader constructor.
-	 *
-	 * @since 2.0.0
-	 */
-	public function __construct() {
-
-		$this->url  = WPFORMS_STRIPE_URL;
-		$this->path = WPFORMS_STRIPE_PATH;
-
-		add_action( 'wpforms_loaded', [ $this, 'init' ], 15 );
+		return $instance;
 	}
 
 	/**
 	 * All the actual plugin loading is done here.
 	 *
 	 * @since 2.0.0
+	 *
+	 * @return Loader
 	 */
 	public function init() {
+
+		$this->url  = WPFORMS_STRIPE_URL;
+		$this->path = WPFORMS_STRIPE_PATH;
 
 		( new Migrations() )->init();
 
@@ -114,17 +105,33 @@ final class Loader {
 		}
 
 		if ( wpforms_is_admin_page( 'settings', 'payments' ) ) {
-			new Admin\Settings();
-			$this->connect = new Admin\Connect();
+			( new Admin\Settings() )->init();
+
+			// Initialize class for backward compatibility.
+			$this->connect = new Connect();
 		}
 
 		if ( is_admin() ) {
 			new Admin\Notices();
 		}
 
-		new Frontend();
+		( new Frontend() )->init( $this->api );
 
 		$this->process = new Process();
+
+		$this->hooks();
+
+		return $this;
+	}
+
+	/**
+	 * Add hooks.
+	 *
+	 * @since 3.1.0
+	 */
+	private function hooks() {
+
+		add_action( 'wpforms_updater', [ $this, 'updater' ] );
 	}
 
 	/**
@@ -158,15 +165,22 @@ final class Loader {
 	/**
 	 * Load the plugin updater.
 	 *
-	 * @since 2.0.0
-	 * @deprecated 2.5.0
+	 * @since 2.5.0
 	 *
 	 * @param string $key License key.
 	 */
 	public function updater( $key ) {
 
-		_deprecated_function( __METHOD__, '2.5.0 of the WPForms Stripe addon' );
-
-		wpforms_stripe_updater( $key );
+		new WPForms_Updater(
+			[
+				'plugin_name' => 'WPForms Stripe',
+				'plugin_slug' => 'wpforms-stripe',
+				'plugin_path' => plugin_basename( WPFORMS_STRIPE_FILE ),
+				'plugin_url'  => trailingslashit( WPFORMS_STRIPE_URL ),
+				'remote_url'  => WPFORMS_UPDATER_API,
+				'version'     => WPFORMS_STRIPE_VERSION,
+				'key'         => $key,
+			]
+		);
 	}
 }

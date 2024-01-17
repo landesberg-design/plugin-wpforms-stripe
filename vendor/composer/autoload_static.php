@@ -4,16 +4,16 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInitbdac1bc8169bc5cd1ab9baebb86c56e8
+class ComposerStaticInitefe5dd7579830310d12362c353f2c96d
 {
+    public static $files = array (
+        'b274c7cebd2affcb29d70e49ee89fe03' => __DIR__ . '/../..' . '/includes/deprecated.php',
+    );
+
     public static $prefixLengthsPsr4 = array (
         'W' => 
         array (
             'WPFormsStripe\\' => 14,
-        ),
-        'S' => 
-        array (
-            'Stripe\\' => 7,
         ),
     );
 
@@ -21,10 +21,6 @@ class ComposerStaticInitbdac1bc8169bc5cd1ab9baebb86c56e8
         'WPFormsStripe\\' => 
         array (
             0 => __DIR__ . '/../..' . '/src',
-        ),
-        'Stripe\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/stripe/stripe-php/lib',
         ),
     );
 
@@ -35,9 +31,9 @@ class ComposerStaticInitbdac1bc8169bc5cd1ab9baebb86c56e8
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInitbdac1bc8169bc5cd1ab9baebb86c56e8::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInitbdac1bc8169bc5cd1ab9baebb86c56e8::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInitbdac1bc8169bc5cd1ab9baebb86c56e8::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInitefe5dd7579830310d12362c353f2c96d::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInitefe5dd7579830310d12362c353f2c96d::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInitefe5dd7579830310d12362c353f2c96d::$classMap;
 
         }, null, ClassLoader::class);
     }

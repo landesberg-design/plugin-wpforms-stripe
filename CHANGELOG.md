@@ -1,5 +1,48 @@
-# Change Log
+# Changelog
 All notable changes to this project will be documented in this file, formatted via [this recommendation](https://keepachangelog.com/).
+
+## [3.3.0] - 2024-01-09
+### Added
+- Compatibility with WPForms 1.8.6.
+
+### Changed
+- Minimum WPForms version supported is 1.8.6.
+
+## [3.2.0] - 2023-11-08
+### Added
+- Compatibility with WPForms 1.8.5.
+
+### Changed
+- Minimum WPForms version supported is 1.8.5.
+
+## [3.1.0] - 2023-09-26
+### IMPORTANT
+- Support for PHP 5.6 has been discontinued. If you are running PHP 5.6, you MUST upgrade PHP before installing WPForms Stripe Pro 3.1.0. Failure to do that will disable WPForms Stripe Pro functionality.
+- Support for WordPress 5.4 and below has been discontinued. If you are running any of those outdated versions, you MUST upgrade WordPress before installing WPForms Stripe Pro 3.1.0. Failure to do that will disable WPForms Stripe Pro functionality.
+
+### Added
+- Multiple Subscription Plans can now be configured on the Builder screen!
+
+### Changed
+- Minimum WPForms version supported is 1.8.4.
+- The now deprecated `wpmu_new_blog` hook was replaced with the `wp_initialize_site` hook.
+
+### Fixed
+- Stripe payment's country field was cropped off.
+
+## [3.0.1] - 2023-06-13
+### Fixed
+- Stripe Credit Card field was preventing email notifications about form submission to be sent in certain scenarios.
+
+## [3.0.0] - 2023-05-31
+### IMPORTANT
+- A significant part of the addon has been moved to the WPForms plugin due to the new Stripe Payments feature.
+
+### Added
+- Compatibility with WPForms 1.8.2.
+
+### Changed
+- Minimum WPForms version supported is 1.8.2.
 
 ## [2.11.0] - 2023-03-23
 ### Added

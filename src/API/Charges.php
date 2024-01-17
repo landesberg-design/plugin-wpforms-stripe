@@ -1,7 +1,9 @@
 <?php
-
+// phpcs:ignoreFile Generic.Files.OneObjectStructurePerFile.MultipleFound
 namespace WPFormsStripe\API;
 
+use WPForms\Integrations\Stripe\Api\ApiInterface;
+use WPForms\Integrations\Stripe\Api\Common;
 use WPFormsStripe\Helpers;
 
 /**
@@ -98,10 +100,10 @@ class Charges extends Common implements ApiInterface {
 
 		$args = \wp_parse_args( $args, $defaults );
 
-		unset( $args['customer_email'] );
+		unset( $args['customer_email'], $args['customer_name'] );
 
 		try {
-			$this->charge = \Stripe\Charge::create( $args, Helpers::get_auth_opts() );
+			$this->charge = \WPForms\Vendor\Stripe\Charge::create( $args, Helpers::get_auth_opts() );
 		} catch ( \Exception $e ) {
 			$this->handle_exception( $e );
 		}
@@ -135,11 +137,11 @@ class Charges extends Common implements ApiInterface {
 
 		try {
 
-			$this->set_customer( $args['email'] );
+			$this->set_customer( $args['email'], $args['customer_name'] ?? '' );
 			$sub_args['customer'] = $this->get_customer( 'id' );
 
 			// Attaching a Source to a Customer validates CVC and throws an exception if Source is invalid.
-			$new_source = \Stripe\Customer::createSource(
+			$new_source = \WPForms\Vendor\Stripe\Customer::createSource(
 				$this->get_customer( 'id' ),
 				array( 'source' => $this->token ),
 				Helpers::get_auth_opts()
@@ -154,10 +156,10 @@ class Charges extends Common implements ApiInterface {
 			}
 
 			// Create the subscription.
-			$this->subscription = \Stripe\Subscription::create( $sub_args, Helpers::get_auth_opts() );
+			$this->subscription = \WPForms\Vendor\Stripe\Subscription::create( $sub_args, Helpers::get_auth_opts() );
 
 			// Reference invoice to get the charge object.
-			$invoice = \Stripe\Invoice::all(
+			$invoice = \WPForms\Vendor\Stripe\Invoice::all(
 				array(
 					'limit'        => 1,
 					'subscription' => $this->subscription->id,
@@ -170,11 +172,11 @@ class Charges extends Common implements ApiInterface {
 
 		} catch ( \Exception $e ) {
 
-			if ( \is_a( $e, '\Stripe\Exception\CardException' ) ) {
+			if ( \is_a( $e, '\WPForms\Vendor\Stripe\Exception\CardException' ) ) {
 				$body = $e->getJsonBody();
 				// Cleanup if the card was added but requires user action unsupported by legacy integration.
 				if ( 'subscription_payment_intent_requires_action' === $body['error']['code'] ) {
-					\Stripe\Customer::deleteSource(
+					\WPForms\Vendor\Stripe\Customer::deleteSource(
 						$this->get_customer( 'id' ),
 						$new_source->id,
 						Helpers::get_auth_opts()
@@ -239,7 +241,7 @@ class Charges extends Common implements ApiInterface {
 	 *
 	 * @since 2.3.0
 	 *
-	 * @param \Stripe\Source $new_source Source object.
+	 * @param \WPForms\Vendor\Stripe\Source $new_source Source object.
 	 *
 	 * @return string
 	 *
@@ -251,7 +253,7 @@ class Charges extends Common implements ApiInterface {
 			return '';
 		}
 
-		$default_source = \Stripe\Customer::retrieveSource(
+		$default_source = \WPForms\Vendor\Stripe\Customer::retrieveSource(
 			$this->get_customer( 'id' ),
 			$this->customer->default_source,
 			Helpers::get_auth_opts()
@@ -287,7 +289,7 @@ class Charges extends Common implements ApiInterface {
 	 */
 	protected function update_remote_customer_default_source( $source_id ) {
 
-		\Stripe\Customer::update(
+		\WPForms\Vendor\Stripe\Customer::update(
 			$this->get_customer( 'id' ),
 			array(
 				'default_source' => $source_id,
@@ -307,7 +309,7 @@ class Charges extends Common implements ApiInterface {
 	 */
 	protected function delete_remote_customer_source( $source_id ) {
 
-		\Stripe\Customer::deleteSource(
+		\WPForms\Vendor\Stripe\Customer::deleteSource(
 			$this->get_customer( 'id' ),
 			$source_id,
 			Helpers::get_auth_opts()
@@ -319,13 +321,13 @@ class Charges extends Common implements ApiInterface {
 	 *
 	 * @since 2.3.0
 	 *
-	 * @param \Stripe\Source $new_source Source object.
+	 * @param \WPForms\Vendor\Stripe\Source $new_source Source object.
 	 *
 	 * @throws \Exception In case of Stripe API error.
 	 */
 	protected function delete_remote_subscriptions_duplicated_sources( $new_source ) {
 
-		$subscriptions = \Stripe\Subscription::all(
+		$subscriptions = \WPForms\Vendor\Stripe\Subscription::all(
 			array(
 				'customer' => $this->get_customer( 'id' ),
 				'status'   => 'active',
@@ -345,7 +347,7 @@ class Charges extends Common implements ApiInterface {
 
 			if ( $new_source->fingerprint === $subscription->default_source->fingerprint ) {
 
-				\Stripe\Subscription::update(
+				\WPForms\Vendor\Stripe\Subscription::update(
 					$subscription->id,
 					array( 'default_source' => $new_source->id ),
 					Helpers::get_auth_opts()

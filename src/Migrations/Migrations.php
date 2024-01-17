@@ -30,7 +30,7 @@ class Migrations extends Base {
 	 *
 	 * @since 2.6.0
 	 */
-	const PLUGIN_NAME = 'WPForms Stripe';
+	const PLUGIN_NAME = 'WPForms Stripe Pro';
 
 	/**
 	 * Upgrade classes.
@@ -43,5 +43,6 @@ class Migrations extends Base {
 		'Upgrade230',
 		'Upgrade261',
 		'Upgrade270',
+		'Upgrade300',
 	];
 }

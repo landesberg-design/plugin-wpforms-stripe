@@ -7,5 +7,4 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'WPFormsStripe\\' => array($baseDir . '/src'),
-    'Stripe\\' => array($vendorDir . '/stripe/stripe-php/lib'),
 );
