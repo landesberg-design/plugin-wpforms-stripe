@@ -100,7 +100,7 @@ class Charges extends Common implements ApiInterface {
 
 		$args = \wp_parse_args( $args, $defaults );
 
-		unset( $args['customer_email'], $args['customer_name'] );
+		unset( $args['customer_email'], $args['customer_name'], $args['customer_address'] );
 
 		try {
 			$this->charge = \WPForms\Vendor\Stripe\Charge::create( $args, Helpers::get_auth_opts() );
@@ -137,7 +137,7 @@ class Charges extends Common implements ApiInterface {
 
 		try {
 
-			$this->set_customer( $args['email'], $args['customer_name'] ?? '' );
+			$this->set_customer( $args['email'], $args['customer_name'] ?? '', $args['customer_address'] ?? [] );
 			$sub_args['customer'] = $this->get_customer( 'id' );
 
 			// Attaching a Source to a Customer validates CVC and throws an exception if Source is invalid.

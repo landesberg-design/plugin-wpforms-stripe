@@ -7,7 +7,7 @@
  * Requires PHP:      7.0
  * Author:            WPForms
  * Author URI:        https://wpforms.com
- * Version:           3.3.0
+ * Version:           3.4.0
  * Text Domain:       wpforms-stripe
  * Domain Path:       languages
  *
@@ -38,7 +38,7 @@ use WPFormsStripe\Loader;
  *
  * @since 1.0.0
  */
-const WPFORMS_STRIPE_VERSION = '3.3.0';
+const WPFORMS_STRIPE_VERSION = '3.4.0';
 
 /**
  * Plugin file.
@@ -71,7 +71,7 @@ function wpforms_stripe_load() {
 
 	$requirements = [
 		'file'    => WPFORMS_STRIPE_FILE,
-		'wpforms' => '1.8.6',
+		'wpforms' => '1.8.8',
 	];
 
 	if ( ! function_exists( 'wpforms_requirements' ) || ! wpforms_requirements( $requirements ) ) {

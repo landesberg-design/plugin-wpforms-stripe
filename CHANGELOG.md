@@ -1,6 +1,13 @@
 # Changelog
 All notable changes to this project will be documented in this file, formatted via [this recommendation](https://keepachangelog.com/).
 
+## [3.4.0] - 2024-04-23
+### Added
+- Compatibility with WPForms 1.8.8.
+
+### Changed
+- Minimum WPForms version supported is 1.8.8.
+
 ## [3.3.0] - 2024-01-09
 ### Added
 - Compatibility with WPForms 1.8.6.
